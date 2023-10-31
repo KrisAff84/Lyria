@@ -1,0 +1,84 @@
+<!-- 
+This file is merely a template for a very basic music player, produced by ChatGPT. 
+It needs to be edited to fit given needs. 
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lyria Music Player</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+
+        #player-container {
+            max-width: 500px;
+            margin: 500px auto 0 auto;
+            border: 4px solid;
+            border-color: Black;
+            
+        }
+
+        #audio-player {
+            width: 90%;
+            margin-bottom: 20px;
+            margin-top: 10px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .control-button {
+            margin: 0 10px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="player-container">
+        <audio id="audio-player" controls>
+            Your browser does not support the audio element.
+        </audio>
+        <div class="controls">
+            <button class="control-button" id="play-button">Play</button>
+            <button class="control-button" id="pause-button">Pause</button>
+            <button class="control-button" id="stop-button">Stop</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const audioPlayer = document.getElementById("audio-player");
+            const playButton = document.getElementById("play-button");
+            const pauseButton = document.getElementById("pause-button");
+            const stopButton = document.getElementById("stop-button");
+
+            playButton.addEventListener("click", function () {
+                audioPlayer.play();
+            });
+
+            pauseButton.addEventListener("click", function () {
+                audioPlayer.pause();
+            });
+
+            stopButton.addEventListener("click", function () {
+                audioPlayer.pause();
+                audioPlayer.currentTime = 0;
+            });
+        });
+    </script>
+</body>
+
+</html>
