@@ -22,7 +22,6 @@ It needs to be edited to fit given needs.
             margin: 500px auto 0 auto;
             border: 4px solid;
             border-color: Black;
-            
         }
 
         #audio-player {
@@ -40,8 +39,13 @@ It needs to be edited to fit given needs.
 
         .control-button {
             margin: 0 10px;
-            font-size: 18px;
+            font-size: 24px;
             cursor: pointer;
+        }
+
+        .song-title {
+            font-size: 18px;
+            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -52,30 +56,39 @@ It needs to be edited to fit given needs.
             Your browser does not support the audio element.
         </audio>
         <div class="controls">
-            <button class="control-button" id="play-button">Play</button>
-            <button class="control-button" id="pause-button">Pause</button>
-            <button class="control-button" id="stop-button">Stop</button>
+            <button class="control-button" id="skip-backward">&#9669;&#9669;</button>
+            <button class="control-button" id="play-pause">&#9654;&#9646;</button>
+            <button class="control-button" id="skip-forward">&#9659;&#9659;</button>
+        </div>
+
+        <div class="song-title">
+            {{ song }}
         </div>
     </div>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const audioPlayer = document.getElementById("audio-player");
-            const playButton = document.getElementById("play-button");
-            const pauseButton = document.getElementById("pause-button");
-            const stopButton = document.getElementById("stop-button");
+            const playPauseButton = document.getElementById("play-pause");
+            const skipBackwardButton = document.getElementById("skip-backward");
+            const skipForwardButton = document.getElementById("skip-forward");
 
-            playButton.addEventListener("click", function () {
-                audioPlayer.play();
+            playPauseButton.addEventListener("click", function () {
+                if (audioPlayer.paused) {
+                    audioPlayer.play();
+                    playPauseButton.innerHTML = "&#9646;";
+                } else {
+                    audioPlayer.pause();
+                    playPauseButton.innerHTML = "&#9654;";
+                }
             });
 
-            pauseButton.addEventListener("click", function () {
-                audioPlayer.pause();
+            skipBackwardButton.addEventListener("click", function () {
+                // Logic for skipping backward
             });
 
-            stopButton.addEventListener("click", function () {
-                audioPlayer.pause();
-                audioPlayer.currentTime = 0;
+            skipForwardButton.addEventListener("click", function () {
+                // Logic for skipping forward
             });
         });
     </script>
