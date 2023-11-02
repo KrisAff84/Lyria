@@ -1,14 +1,40 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.conf import settings
+import boto3
+import json
 
-def calculate():
-    x = 1
-    y = 2
-    return x
 
+# Don't need this function, purely for learning/testing
 def say_hello(request):
-    x = calculate()
     return render(request, 'hello.html', {'name': 'Kris'})
 
 def index(request):
-    return render(request, 'index.html')
+    s3 = boto3.client('s3')
+    song_list = []
+    idx = 1
+    bucket_name = 'lyria-storage'
+    response = s3.list_objects_v2(Bucket=bucket_name, Prefix='songs/')
+    while idx < len(response['Contents']):
+        song_list.append(response['Contents'][idx]['Key'].split('/')[1].replace('_', ' '))
+        idx += 2
+    
+    song = song_list[0]
+    context = {'song': song}
+
+    return render(request, 'index.html', context)
+
+
+def play(request, song):
+    pass
+
+
+def pause(request):
+    pass
+
+
+def skip_forward():
+    pass
+
+
+def skip_backward():
+    pass
