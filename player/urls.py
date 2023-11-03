@@ -1,8 +1,8 @@
 from django.urls import path
 from . import views
 
-# URL Configuration
+
 urlpatterns = [
-    path('hello/', views.say_hello),
-    path('index/', views.index, name='index')
+    path('index/', views.index, name='index'),
+    path('play/<str:current_song_audio_file>/', views.play, name='play')
 ]
