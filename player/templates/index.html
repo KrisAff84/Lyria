@@ -62,7 +62,7 @@ It needs to be edited to fit given needs.
         </div>
 
         <div class="song-title">
-            {{ song }}
+            {{ current_song_title }}
         </div>
     </div>
 
@@ -75,8 +75,25 @@ It needs to be edited to fit given needs.
 
             playPauseButton.addEventListener("click", function () {
                 if (audioPlayer.paused) {
-                    audioPlayer.play();
-                    playPauseButton.innerHTML = "&#9646;";
+                    const currentSongAudioFile = "{{ current_song_audio_file }}";
+                    const playUrl = `https://${currentSongAudioFile}`;
+
+                    fetch(playUrl)
+                        .then(response => {
+                            if (response.ok) {
+                                return response.blob();
+                            }
+                            throw new Error("Network response was not ok.");
+                        })
+                        .then(blob => {
+                            const blobUrl = URL.createObjectURL(blob);
+                            audioPlayer.src = blobUrl;
+                            audioPlayer.play();
+                            playPauseButton.innerHTML = "&#9646;";
+                        })
+                        .catch(error => {
+                            console.error("Error:", error);
+                        });
                 } else {
                     audioPlayer.pause();
                     playPauseButton.innerHTML = "&#9654;";
