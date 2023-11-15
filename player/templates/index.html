@@ -62,21 +62,22 @@ It needs to be edited to fit given needs.
         </div>
 
         <div class="song-title">
-            {{ current_song_title }}
+            {{ current_title }}
         </div>
     </div>
+    
+ 
 
-    <script>
+   <script>
         document.addEventListener("DOMContentLoaded", function () {
             const audioPlayer = document.getElementById("audio-player");
             const playPauseButton = document.getElementById("play-pause");
+            const currentSongUrl = "{{ current_audio_url|safe }}";
             const skipBackwardButton = document.getElementById("skip-backward");
             const skipForwardButton = document.getElementById("skip-forward");
-
             playPauseButton.addEventListener("click", function () {
                 if (audioPlayer.paused) {
-                    const currentSongAudioFile = "{{ current_song_audio_file }}";
-                    const playUrl = `https://${currentSongAudioFile}`;
+                    const playUrl = currentSongUrl;
 
                     fetch(playUrl)
                         .then(response => {
@@ -99,16 +100,58 @@ It needs to be edited to fit given needs.
                     playPauseButton.innerHTML = "&#9654;";
                 }
             });
+//  THE USE OF newIdx TO UPDATE SONG IS NOT SCROLLING THROUGH ALL SONGS, SINCE IT STARTS WITH currentIndex. 
+//  NEED A WAY TO UPDATE newIdx TO BE THE NEXT SONG IN THE LIST.
 
             skipBackwardButton.addEventListener("click", function () {
-                // Logic for skipping backward
+                const currentIndex = parseInt("{{ current_idx }}", 10);
+                const newIdx = (currentIndex - 1 + parseInt("{{ song_list|length }}", 10)) % parseInt("{{ song_list|length}}", 10);
+                updateAudioPlayer(newIdx);
             });
 
             skipForwardButton.addEventListener("click", function () {
-                // Logic for skipping forward
+                const currentIndex = parseInt("{{ current_idx }}", 10);
+                const newIdx = (currentIndex + 1) % parseInt("{{ song_list|length}}", 10);
+                updateAudioPlayer(newIdx);
             });
-        });
+
+            function updateAudioPlayer(newIdx) {
+                const newAudioUrl = "{{ audio_urls|safe }}".split(',')[newIdx];
+                const newTitle = "{{ song_list|safe }}".split(',')[newIdx];
+                // console.log(newAudioUrl)
+                // console.log(newTitle)
+
+                fetch(newAudioUrl)
+                    .then(response => {
+                        if (response.ok) {
+                            return response.blob();
+                        }
+                        throw new Error("Network response was not ok.");
+                    })
+                    .then(blob => {
+                        const blobUrl = URL.createObjectURL(blob);
+                        audioPlayer.src = blobUrl;
+                        audioPlayer.play();
+                        playPauseButton.innerHTML = "&#9646;";
+                        document.querySelector(".song-title").innerHTML = newTitle;
+                    })
+                    .catch(error => {
+                        console.error("Error:", error);
+                    });
+            }
+
+            function getAudioUrl(newIdx) {
+                const newAudioUrl = "{{ audio_urls }}[newIdx]";
+                return newAudioUrl;
+            }
+
+            function getTitle(newIdx) {
+                const newTitle = "{{ song_list }}[newIdx]";
+                return newTitle;
+            }
+        });      
     </script>
 </body>
 
 </html>
+
