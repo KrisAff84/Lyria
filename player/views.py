@@ -1,9 +1,9 @@
 from django.shortcuts import render
 from django.conf import settings
 import boto3
-import random
 from django.http import StreamingHttpResponse, HttpResponse 
-import requests
+from botocore.config import Config
+
 
 bucket_name = settings.AWS_STORAGE_BUCKET_NAME
 aws_s3_region_name = settings.AWS_S3_REGION_NAME
@@ -11,11 +11,15 @@ aws_access_key_id = settings.AWS_ACCESS_KEY_ID
 aws_secret_access_key = settings.AWS_SECRET_ACCESS_KEY
 
 def index(request):
+    config = Config(s3={"use_accelerate_endpoint": True})
     s3 = boto3.client(
         's3', 
         region_name='us-east-2', 
         aws_access_key_id=aws_access_key_id,
-        aws_secret_access_key=aws_secret_access_key
+        aws_secret_access_key=aws_secret_access_key,
+
+        # Sets S3 to use accelerate endpoint - turn on for production
+        config=config
         )
 
     song_list = [] # Song list without underscores

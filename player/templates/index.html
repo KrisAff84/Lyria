@@ -19,15 +19,16 @@ It needs to be edited to fit given needs.
 
         #player-container {
             max-width: 500px;
-            margin: 500px auto 0 auto;
-            border: 4px solid;
-            border-color: Black;
+            margin: 200px auto 0 auto;
+            border: 6px solid;
+            border-color: rgb(58, 77, 90);
+            background-color: rgb(9, 9, 65);
         }
 
         #audio-player {
             width: 90%;
             margin-bottom: 20px;
-            margin-top: 10px;
+            margin-top: 10px; 
         }
 
         .controls {
@@ -46,12 +47,21 @@ It needs to be edited to fit given needs.
         .song-title {
             font-size: 18px;
             margin-bottom: 10px;
+            color: rgb(210, 219, 226);
         }
+
+        img {
+            width: 90%;
+            height: auto;
+            margin-top: 10px;
+        }
+
     </style>
 </head>
 
 <body>
     <div id="player-container">
+        <img src= "{{ current_image_url }}">
         <audio id="audio-player" controls>
             Your browser does not support the audio element.
         </audio>
@@ -61,8 +71,8 @@ It needs to be edited to fit given needs.
             <button class="control-button" id="skip-forward">&#9659;&#9659;</button>
         </div>
 
-        <div class="song-title">
-            {{ current_title }}
+        <div class="song-title" id ="dynamic-title">
+
         </div>
     </div>
     
@@ -75,9 +85,25 @@ It needs to be edited to fit given needs.
             const currentSongUrl = "{{ current_audio_url|safe }}";
             const skipBackwardButton = document.getElementById("skip-backward");
             const skipForwardButton = document.getElementById("skip-forward");
+
+            const songTitleString = "{{ song_list|safe }}".replaceAll(/[\[\]\']/g, '');
+            const songTitles = songTitleString.split(',');
+
+            const songUrlString = "{{ audio_urls|safe }}".replaceAll(/[\[\]\']/g, '');
+            const songUrls = songUrlString.split(',');
+
+            // For debugging:
+            songIdx = 2;
+            console.log(songTitles[songIdx])
+            console.log("{{ image_urls.0|safe }}")
+            console.log(songUrls[songIdx])
+
+            // Set initial title
+            document.getElementById("dynamic-title").innerText = songTitles[songIdx];
+
             playPauseButton.addEventListener("click", function () {
                 if (audioPlayer.paused) {
-                    const playUrl = currentSongUrl;
+                    const playUrl = songUrls[songIdx];
 
                     fetch(playUrl)
                         .then(response => {
@@ -104,21 +130,22 @@ It needs to be edited to fit given needs.
 //  NEED A WAY TO UPDATE newIdx TO BE THE NEXT SONG IN THE LIST.
 
             skipBackwardButton.addEventListener("click", function () {
-                const currentIndex = parseInt("{{ current_idx }}", 10);
-                const newIdx = (currentIndex - 1 + parseInt("{{ song_list|length }}", 10)) % parseInt("{{ song_list|length}}", 10);
+                const newIdx = (songIdx - 1 + songTitles.length) % songTitles.length;
+                songIdx = newIdx;
+                console.log(newIdx)
                 updateAudioPlayer(newIdx);
             });
 
             skipForwardButton.addEventListener("click", function () {
-                const currentIndex = parseInt("{{ current_idx }}", 10);
-                const newIdx = (currentIndex + 1) % parseInt("{{ song_list|length}}", 10);
+                const newIdx = (songIdx + 1) % songTitles.length;
+                songIdx = newIdx;
                 updateAudioPlayer(newIdx);
             });
 
             function updateAudioPlayer(newIdx) {
-                const newAudioUrl = "{{ audio_urls|safe }}".split(',')[newIdx];
-                const newTitle = "{{ song_list|safe }}".split(',')[newIdx];
-                // console.log(newAudioUrl)
+                const newAudioUrl = songUrls[newIdx];
+                console.log(newAudioUrl)
+                document.getElementById("dynamic-title").innerText = songTitles[newIdx];
                 // console.log(newTitle)
 
                 fetch(newAudioUrl)
@@ -133,7 +160,6 @@ It needs to be edited to fit given needs.
                         audioPlayer.src = blobUrl;
                         audioPlayer.play();
                         playPauseButton.innerHTML = "&#9646;";
-                        document.querySelector(".song-title").innerHTML = newTitle;
                     })
                     .catch(error => {
                         console.error("Error:", error);
