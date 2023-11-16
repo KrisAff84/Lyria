@@ -40,7 +40,9 @@ It needs to be edited to fit given needs.
 
         .control-button {
             margin: 0 10px;
-            font-size: 24px;
+            font-size: 25px;
+            background-color: rgb(233, 233, 233);
+            border: 3px solid rgb(58, 77, 90);
             cursor: pointer;
         }
 
@@ -61,13 +63,13 @@ It needs to be edited to fit given needs.
 
 <body>
     <div id="player-container">
-        <img src= "{{ current_image_url }}">
+        <img id="song-image" src= "{{ current_image_url }}" alt="Song Image">
         <audio id="audio-player" controls>
             Your browser does not support the audio element.
         </audio>
         <div class="controls">
             <button class="control-button" id="skip-backward">&#9669;&#9669;</button>
-            <button class="control-button" id="play-pause">&#9654;&#9646;</button>
+            <button class="control-button" id="play-pause">&#9655;</button>
             <button class="control-button" id="skip-forward">&#9659;&#9659;</button>
         </div>
 
@@ -92,14 +94,19 @@ It needs to be edited to fit given needs.
             const songUrlString = "{{ audio_urls|safe }}".replaceAll(/[\[\]\']/g, '');
             const songUrls = songUrlString.split(',');
 
+            const ImageUrlString = "{{ image_urls|safe }}".replaceAll(/[\[\]\']/g, '');
+            const ImageUrls = ImageUrlString.split(',');
+
+            songIdx = 0;
             // For debugging:
-            songIdx = 2;
             console.log(songTitles[songIdx])
-            console.log("{{ image_urls.0|safe }}")
             console.log(songUrls[songIdx])
+            console.log(ImageUrls[songIdx])
 
             // Set initial title
             document.getElementById("dynamic-title").innerText = songTitles[songIdx];
+
+            let playbackPosition = 0;
 
             playPauseButton.addEventListener("click", function () {
                 if (audioPlayer.paused) {
@@ -115,15 +122,17 @@ It needs to be edited to fit given needs.
                         .then(blob => {
                             const blobUrl = URL.createObjectURL(blob);
                             audioPlayer.src = blobUrl;
+                            audioPlayer.currentTime = playbackPosition;
                             audioPlayer.play();
-                            playPauseButton.innerHTML = "&#9646;";
+                            playPauseButton.innerHTML = "&#9647;&#9647;";
                         })
                         .catch(error => {
                             console.error("Error:", error);
                         });
                 } else {
+                    playbackPosition = audioPlayer.currentTime;
                     audioPlayer.pause();
-                    playPauseButton.innerHTML = "&#9654;";
+                    playPauseButton.innerHTML = "&#9655;";
                 }
             });
 //  THE USE OF newIdx TO UPDATE SONG IS NOT SCROLLING THROUGH ALL SONGS, SINCE IT STARTS WITH currentIndex. 
@@ -142,13 +151,14 @@ It needs to be edited to fit given needs.
                 updateAudioPlayer(newIdx);
             });
 
+            playbackPosition = 0;
+
             function updateAudioPlayer(newIdx) {
-                const newAudioUrl = songUrls[newIdx];
-                console.log(newAudioUrl)
                 document.getElementById("dynamic-title").innerText = songTitles[newIdx];
+                document.getElementById("song-image").src = ImageUrls[newIdx];
                 // console.log(newTitle)
 
-                fetch(newAudioUrl)
+                fetch(songUrls[newIdx])
                     .then(response => {
                         if (response.ok) {
                             return response.blob();
@@ -159,7 +169,7 @@ It needs to be edited to fit given needs.
                         const blobUrl = URL.createObjectURL(blob);
                         audioPlayer.src = blobUrl;
                         audioPlayer.play();
-                        playPauseButton.innerHTML = "&#9646;";
+                        playPauseButton.innerHTML = "&#9647;&#9647";
                     })
                     .catch(error => {
                         console.error("Error:", error);
