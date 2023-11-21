@@ -9,13 +9,13 @@ bucket_name = settings.AWS_STORAGE_BUCKET_NAME
 aws_s3_region_name = settings.AWS_S3_REGION_NAME
 aws_access_key_id = settings.AWS_ACCESS_KEY_ID
 aws_secret_access_key = settings.AWS_SECRET_ACCESS_KEY
-cloudfront_url = 'https://d3v05ohikl64ni.cloudfront.net/'
+cloudfront_url = settings.CLOUDFRONT_URL
 
 def index(request):
     
     s3 = boto3.client(
         's3', 
-        region_name='us-east-2', 
+        region_name=aws_s3_region_name, 
         aws_access_key_id=aws_access_key_id,
         aws_secret_access_key=aws_secret_access_key,
         )
