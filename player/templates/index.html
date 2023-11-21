@@ -52,11 +52,32 @@ It needs to be edited to fit given needs.
             color: rgb(210, 219, 226);
         }
 
-        img {
+        #song-image {
             width: 90%;
             height: auto;
             margin-top: 10px;
         }
+
+        #list-container {
+            width: 90%;
+            margin: 0 auto;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            background-color: rgb(58, 77, 90);
+
+        }
+        #song-list li {
+            display: flex;
+            flex-direction: column;
+            align-items: left;
+            margin-top: 5px;
+            margin-left: 5px;
+            cursor: pointer;
+            
+        }
+
+
+        
 
     </style>
 </head>
@@ -76,26 +97,64 @@ It needs to be edited to fit given needs.
         <div class="song-title" id ="dynamic-title">
 
         </div>
+
+        <div id="list-container">
+            <div id="song-list">
+                <ul>
+                    {% for song in song_list %}
+                    <!-- updateAudioPlayer with newIdx const being index of song_list-->
+                    <li onclick="updateAudioPlayer({{ forloop.counter0 }})">{{ song }}</li>
+                    <!-- call updateAudioPlayer function -->
+                    
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
     </div>
     
  
 
    <script>
+        let songIdx = 0;
+        const audioPlayer = document.getElementById("audio-player");
+        const playPauseButton = document.getElementById("play-pause");
+
+        const songTitleString = "{{ song_list|safe }}".replaceAll(/[\[\]\']/g, '');
+        const songTitles = songTitleString.split(',');
+
+        const songUrlString = "{{ audio_urls|safe }}".replaceAll(/[\[\]\']/g, '');
+        const songUrls = songUrlString.split(',');
+
+        const ImageUrlString = "{{ image_urls|safe }}".replaceAll(/[\[\]\']/g, '');
+        const ImageUrls = ImageUrlString.split(',');
+        
+        function updateAudioPlayer(newIdx) {
+                    document.getElementById("dynamic-title").innerText = songTitles[newIdx];
+                    document.getElementById("song-image").src = ImageUrls[newIdx];
+                    // console.log(newTitle)
+
+                    fetch(songUrls[newIdx])
+                        .then(response => {
+                            if (response.ok) {
+                                return response.blob();
+                            }
+                            throw new Error("Network response was not ok.");
+                        })
+                        .then(blob => {
+                            const blobUrl = URL.createObjectURL(blob);
+                            audioPlayer.src = blobUrl;
+                            audioPlayer.play();
+                            playPauseButton.innerHTML = "&#9647;&#9647";
+                        })
+                        .catch(error => {
+                            console.error("Error:", error);
+                        });
+                    songIdx = newIdx;
+                }
         document.addEventListener("DOMContentLoaded", function () {
-            const audioPlayer = document.getElementById("audio-player");
-            const playPauseButton = document.getElementById("play-pause");
-            const currentSongUrl = "{{ current_audio_url|safe }}";
+
             const skipBackwardButton = document.getElementById("skip-backward");
             const skipForwardButton = document.getElementById("skip-forward");
-
-            const songTitleString = "{{ song_list|safe }}".replaceAll(/[\[\]\']/g, '');
-            const songTitles = songTitleString.split(',');
-
-            const songUrlString = "{{ audio_urls|safe }}".replaceAll(/[\[\]\']/g, '');
-            const songUrls = songUrlString.split(',');
-
-            const ImageUrlString = "{{ image_urls|safe }}".replaceAll(/[\[\]\']/g, '');
-            const ImageUrls = ImageUrlString.split(',');
 
             songIdx = 0;
             // For debugging:
@@ -135,13 +194,10 @@ It needs to be edited to fit given needs.
                     playPauseButton.innerHTML = "&#9655;";
                 }
             });
-//  THE USE OF newIdx TO UPDATE SONG IS NOT SCROLLING THROUGH ALL SONGS, SINCE IT STARTS WITH currentIndex. 
-//  NEED A WAY TO UPDATE newIdx TO BE THE NEXT SONG IN THE LIST.
 
             skipBackwardButton.addEventListener("click", function () {
                 const newIdx = (songIdx - 1 + songTitles.length) % songTitles.length;
                 songIdx = newIdx;
-                console.log(newIdx)
                 updateAudioPlayer(newIdx);
             });
 
@@ -152,39 +208,6 @@ It needs to be edited to fit given needs.
             });
 
             playbackPosition = 0;
-
-            function updateAudioPlayer(newIdx) {
-                document.getElementById("dynamic-title").innerText = songTitles[newIdx];
-                document.getElementById("song-image").src = ImageUrls[newIdx];
-                // console.log(newTitle)
-
-                fetch(songUrls[newIdx])
-                    .then(response => {
-                        if (response.ok) {
-                            return response.blob();
-                        }
-                        throw new Error("Network response was not ok.");
-                    })
-                    .then(blob => {
-                        const blobUrl = URL.createObjectURL(blob);
-                        audioPlayer.src = blobUrl;
-                        audioPlayer.play();
-                        playPauseButton.innerHTML = "&#9647;&#9647";
-                    })
-                    .catch(error => {
-                        console.error("Error:", error);
-                    });
-            }
-
-            function getAudioUrl(newIdx) {
-                const newAudioUrl = "{{ audio_urls }}[newIdx]";
-                return newAudioUrl;
-            }
-
-            function getTitle(newIdx) {
-                const newTitle = "{{ song_list }}[newIdx]";
-                return newTitle;
-            }
         });      
     </script>
 </body>
