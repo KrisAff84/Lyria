@@ -1,8 +1,7 @@
 from django.urls import path
-from . import views
+from .views import index
 
 
 urlpatterns = [
-    path('index/', views.index, name='index'),
-    # path('play/<str:current_song_key>/', views.play, name='play')
+    path('', index, name='index'),
 ]

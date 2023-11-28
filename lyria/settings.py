@@ -34,7 +34,7 @@ AWS_S3_REGION_NAME = config("AWS_S3_REGION_NAME")
 
 CLOUDFRONT_URL = config("CLOUDFRONT_URL")
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -47,8 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'player',
-    'about', 
-    'gallery', 
+    'about',  
     'corsheaders',
 ]
 
