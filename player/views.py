@@ -1,8 +1,6 @@
 from django.shortcuts import render
 from django.conf import settings
 import boto3
-from django.http import StreamingHttpResponse, HttpResponse 
-from botocore.config import Config
 
 
 bucket_name = settings.AWS_STORAGE_BUCKET_NAME
@@ -63,47 +61,3 @@ def index(request):
     }
 
     return render(request, 'index.html', context)
-
-
-# def play(request, current_song_key):
-#     s3 = boto3.client(
-#         's3', 
-#         region_name='us-east-2', 
-#         aws_access_key_id=aws_access_key_id,
-#         aws_secret_access_key=aws_secret_access_key
-#     )
-
-#     presigned_url = s3.generate_presigned_url(
-#             'get_object',
-#             Params={
-#                 'Bucket': bucket_name,
-#                 'Key': current_song_key,
-#             },
-#             ExpiresIn=600,
-#         )
-
-#     def audio_generator():
-#         chunk_size = 1024
-#         response = requests.get(presigned_url, stream=True)
-#         for chunk in response.iter_content(chunk_size=chunk_size):
-#             if chunk:
-#                 yield chunk
-        
-#     response = StreamingHttpResponse(audio_generator(), content_type="audio/mp3")
-#     response['Access-Control-Allow-Origin'] = 'http://localhost:8000'
-#     response['Access-Control-Allow-Methods'] = 'GET', 'HEAD'
-#     response['Access-Control-Allow-Headers'] = 'Accept, Accept-Encoding, Authorization, Content-Type, Origin, User-Agent'
-
-#     return response
-
-
-def pause(request):
-    pass
-
-
-def skip_forward():
-    pass
-
-
-def skip_backward():
-    pass
