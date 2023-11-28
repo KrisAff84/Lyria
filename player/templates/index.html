@@ -184,7 +184,6 @@
         function updateAudioPlayer(newIdx) {
                     document.getElementById("dynamic-title").innerText = songTitles[newIdx];
                     document.getElementById("song-image").src = ImageUrls[newIdx];
-                    // console.log(newTitle)
 
                     fetch(songUrls[newIdx])
                         .then(response => {
@@ -210,10 +209,6 @@
             const skipForwardButton = document.getElementById("skip-forward");
 
             songIdx = 0;
-            // For debugging:
-            console.log(songTitles[songIdx])
-            console.log(songUrls[songIdx])
-            console.log(ImageUrls[songIdx])
 
             // Set initial title
             document.getElementById("dynamic-title").innerText = songTitles[songIdx];
@@ -264,10 +259,8 @@
         });      
     </script>
 
-    <!-- <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script> -->
     <script src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 
 </body>
 
 </html>
-
