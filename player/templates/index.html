@@ -7,6 +7,15 @@
     <link rel="icon" href="data:;base64,iVBORw0KGgo=">
     <title>Meet The Afflerbaughs</title>
     <style>
+        :root {
+            --color1: #e8eef2;
+            --color2: #d6c9c9;
+            --color3: #99a3ac;
+            --color4: #1c2e3b;
+            --color5: #37393a;
+            --transparent: rgba(233, 233, 233, 0);
+        }
+
         body {
             font-family: Arial, Helvetica, sans-serif;
             text-align: center;
@@ -17,12 +26,12 @@
             max-width: 500px;
             margin: 10% auto;
             border: 6px solid;
-            border-color: #A9ACA9;
-            background-color: #2F2235;
+            border-color: var(--color2);
+            background-color: var(--color5);
         }
 
         .player-title {
-            color: #BFC3BA;
+            color: var(--color1);
             font-size: 25px;
             margin-top: 10px;
             font-family: 'optima', serif;
@@ -45,22 +54,26 @@
             display: flex;
             margin: 0 13px;
             padding: 0;
-            background-color: rgba(233, 233, 233, 0);
+            background-color: var(--transparent);
             border: none;
             cursor: pointer;
         }
 
         ion-icon {
             font-size: 60px;
-            color: #BFC3BA;
+            color: var(--color1);
             padding: 0;
             margin: 0;
+        }
+
+        ion-icon:hover {
+            color: var(--color3)
         }
 
         .song-title {
             font-size: 18px;
             margin-bottom: 10px;
-            color: #BFC3BA;
+            color: var(--color1);
         }
 
         #song-image {
@@ -74,8 +87,8 @@
             margin: 0 auto;
             margin-top: 15px;
             margin-bottom: 15px;
-            background-color: #60495A;
-            border: 2px solid #A9ACA9;
+            background-color: var(--color4);
+            border: 2px solid var(--color1);
             max-height: 150px;
             overflow-y: visible;
             overflow-x: hidden;
@@ -85,7 +98,7 @@
         #song-list {
             padding: 5px;
             cursor: pointer;
-            color: #BFC3BA;  
+            color: var(--color1);  
         }
 
         #song-list li {
@@ -104,7 +117,7 @@
         }
 
         #song-list li:hover {
-            color: #2F2235;
+            color: var(--color3);
             text-size-adjust: 50%;
         }
         
@@ -113,7 +126,7 @@
 </head>
 
 <body>
-    <body style="background-color:#BFC3BA;"></body>
+    <body style="background-color:var(--color1);"></body>
     <div id="player-container">
         <div class="player-title">
             <body>Meet The Afflerbaughs</body>
