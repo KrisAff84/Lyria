@@ -46,8 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'player',
-    'about',  
+    'player',  
     'corsheaders',
 ]
 
@@ -92,31 +91,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8000",
-    "http://24.162.52.74",
-    "http://24.162.52.74:8000",
-]
-
-CORS_ALLOW_ALL_ORIGINS = True
-
-CORS_ALLOW_METHODS = [
-    'GET',
-    'POST',
-    'PUT',
-    'DELETE',
-    'HEAD',
-]
-
-CORS_ALLOW_HEADERS = [
-    'Accept',
-    'Accept-Encoding',
-    'Authorization',
-    'Content-Type',
-    'Origin',
-    'User-Agent',
-]
 
 STORAGES = {
     "default": {
