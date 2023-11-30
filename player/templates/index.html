@@ -255,6 +255,12 @@
                 updateAudioPlayer(newIdx);
             });
 
+            audioPlayer.addEventListener("ended", function () {
+                const newIdx = (songIdx + 1) % songTitles.length;
+                songIdx = newIdx;
+                updateAudioPlayer(newIdx);
+            });
+
             playbackPosition = 0;
         });      
     </script>
