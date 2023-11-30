@@ -1,0 +1,36 @@
+services:
+  django_gunicorn:
+    image: krisaff84/lyria_gunicorn:test
+    container_name: django_gunicorn
+    env_file:
+      - .env
+    networks:
+      - backend
+    restart: always
+    logging: 
+        driver: "json-file"
+        options: 
+          max-size: "10m"
+          max-file: "3"
+  nginx: 
+    image: nginx:alpine3.18
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes: 
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      - django_gunicorn
+    restart: always
+    logging: 
+        driver: "json-file"
+        options: 
+          max-size: "10m"
+          max-file: "3"
+
+networks: 
+  frontend:
+  backend:
