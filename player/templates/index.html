@@ -37,6 +37,18 @@
             font-family: 'optima', serif;
         }
 
+        .twinty_link {
+            color: var(--color1);
+            font-size: 11px;
+            margin-top: 10px;
+            font-family: Arial, serif;
+        }
+
+        .custom-link {
+            color: var(--color1);
+            text-decoration: underline;
+        }
+            
         #audio-player {
             width: 90%;
             margin-bottom: 20px;
@@ -66,8 +78,10 @@
             margin: 0;
         }
 
-        ion-icon:hover {
+        @media (hover: hover) {
+            ion-icon:hover {
             color: var(--color3)
+            }
         }
 
         .song-title {
@@ -116,9 +130,11 @@
             margin: 0px;
         }
 
-        #song-list li:hover {
-            color: var(--color3);
-            text-size-adjust: 50%;
+        @media (hover: hover) {
+            #song-list li:hover {
+                color: var(--color3);
+                text-size-adjust: 50%;
+            }
         }
         
 
@@ -132,6 +148,9 @@
             <body>Meet The Afflerbaughs</body>
         </div>
         <img id="song-image" src= "{{ current_image_url }}" alt="Song Image">
+        <div class="twinty_link">
+            <body>Photos by <a class="custom-link" href="https://www.twintyphotography.com" target="_blank">Twinty Photography</a><body>
+        </div>
         <audio id="audio-player" controls>
             Your browser does not support the audio element.
         </audio>
