@@ -28,7 +28,7 @@ variable "instance_type" {
 
 variable "ami_main" {
   description = "Default AMI is Ubuntu 22.04 and runs Docker containers on launch"
-  default     = "ami-0665dad4a584996bc"
+  default     = "ami-08e223e9bae0c275c"
 }
 
 variable "ami_bastion" {
@@ -53,4 +53,18 @@ variable "my_ip" {
 variable "bucket_arn" {
   description = "ARN of the S3 bucket"
   default     = "arn:aws:s3:::lyria-storage"
+}
+
+####################################################
+#### Certificate
+####################################################
+
+variable "certificate_arn" {
+  description = "ARN of the ACM certificate"
+  default     = "arn:aws:acm:us-east-2:835656321421:certificate/7aee737d-0e1f-4311-b1ff-c3b596d85168"
+}
+
+variable "ssl_policy" {
+  description = "SSL policy for the load balancer"
+  default     = "ELBSecurityPolicy-TLS13-1-2-FIPS-2023-04"
 }
