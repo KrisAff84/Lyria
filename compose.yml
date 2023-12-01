@@ -1,7 +1,7 @@
 services:
   django_gunicorn:
-    image: krisaff84/lyria:test2
-    container_name: django_gunicorn
+    image: krisaff84/lyria:latest
+    container_name: django_app
     env_file:
       - .env
     networks:
