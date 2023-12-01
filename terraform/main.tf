@@ -198,10 +198,10 @@ resource "aws_autoscaling_group" "asg" {
     id      = aws_launch_template.asg_lt.id
     version = "$Latest"
   }
-  max_size          = 5
+  max_size          = 3
   min_size          = 1
   health_check_type = "ELB"
-  desired_capacity  = 2
+  desired_capacity  = 1
   vpc_zone_identifier = [
     aws_subnet.private1.id,
     aws_subnet.private2.id,
@@ -210,6 +210,22 @@ resource "aws_autoscaling_group" "asg" {
   target_group_arns = [
     aws_lb_target_group.lb_tg.arn
   ]
+  instance_maintenance_policy {
+    min_healthy_percentage = 34
+    max_healthy_percentage = 134
+  }
+}
+
+resource "aws_autoscaling_policy" "main" {
+  name                   = "${var.name_prefix}_asg_policy"
+  autoscaling_group_name = aws_autoscaling_group.asg.name
+  policy_type            = "TargetTrackingScaling"
+  target_tracking_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ASGAverageCPUUtilization"
+    }
+    target_value = 50.0
+  }
 }
 
 ###########################################
@@ -224,6 +240,7 @@ resource "aws_lb" "elb" {
     aws_subnet.public2.id,
     aws_subnet.public3.id
   ]
+
 }
 resource "aws_lb_target_group" "lb_tg" {
   name     = "${var.name_prefix}-tg"
@@ -239,10 +256,25 @@ resource "aws_lb_target_group" "lb_tg" {
     port                = "traffic-port"
   }
 }
-resource "aws_lb_listener" "lb_listener" {
+resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.elb.arn
   port              = 80
   protocol          = "HTTP"
+  default_action {
+    type             = "redirect"
+    redirect {
+      protocol = "HTTPS"
+      port     = "443"
+      status_code = "HTTP_301"
+    }
+  }
+}
+resource "aws_lb_listener" "https" {
+  load_balancer_arn = aws_lb.elb.arn
+  port              = 443
+  protocol          = "HTTPS"
+  ssl_policy        = var.ssl_policy
+  certificate_arn   = var.certificate_arn
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.lb_tg.arn
@@ -251,20 +283,33 @@ resource "aws_lb_listener" "lb_listener" {
 
 ###########################################
 # Bastion Host
+# Everything in this block can be commented out 
+# if you don't want a bastion host
 ###########################################
 
-resource "aws_instance" "bastion" {
-  ami           = var.ami_bastion
-  instance_type = var.instance_type
-  key_name      = var.key_name
-  vpc_security_group_ids = [
-    aws_security_group.bastion_sg.id
-  ]
-  subnet_id = aws_subnet.public1.id
-  tags = {
-    Name = "${var.name_prefix}-bastion"
-  }
-}
+# resource "aws_instance" "bastion" {
+#   ami           = var.ami_bastion
+#   instance_type = var.instance_type
+#   key_name      = var.key_name
+#   vpc_security_group_ids = [
+#     aws_security_group.bastion_sg.id
+#   ]
+#   subnet_id = aws_subnet.public1.id
+#   tags = {
+#     Name = "${var.name_prefix}-bastion"
+#   }
+# }
+
+# output "bastion_ip" {
+#   description = "Public IP of the bastion host"
+#   value       = aws_instance.bastion.public_ip
+# }
+
+# output "bastion_instance_id" {
+#   description = "Instance ID of the bastion host"
+#   value       = aws_instance.bastion.id
+# }
+
 ##################################################
 # Security Groups
 ##################################################
