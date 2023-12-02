@@ -207,6 +207,12 @@ resource "aws_autoscaling_group" "asg" {
     aws_subnet.private2.id,
     aws_subnet.private3.id
   ]
+  instance_refresh {
+    strategy = "Rolling"
+    preferences {
+      auto_rollback = true
+    }
+  }
   target_group_arns = [
     aws_lb_target_group.lb_tg.arn
   ]
@@ -261,10 +267,10 @@ resource "aws_lb_listener" "http" {
   port              = 80
   protocol          = "HTTP"
   default_action {
-    type             = "redirect"
+    type = "redirect"
     redirect {
-      protocol = "HTTPS"
-      port     = "443"
+      protocol    = "HTTPS"
+      port        = "443"
       status_code = "HTTP_301"
     }
   }
