@@ -8,8 +8,8 @@ aws_s3_region_name = settings.AWS_S3_REGION_NAME
 cloudfront_url = settings.CLOUDFRONT_URL
 
 # Remove for Production - Instances use IAM roles instead
-# aws_access_key_id = settings.AWS_ACCESS_KEY_ID
-# aws_secret_access_key = settings.AWS_SECRET_ACCESS_KEY
+aws_access_key_id = settings.AWS_ACCESS_KEY_ID
+aws_secret_access_key = settings.AWS_SECRET_ACCESS_KEY
 
 def index(request):
     
@@ -45,7 +45,7 @@ def index(request):
     # Replaces underscores with spaces in title_keys list
     song_list = [song.replace('_', ' ') for song in title_keys]
 
-    song_order = [3, 1, 0, 2, 4]
+    song_order = settings.SONG_ORDER
     song_list = [song_list[i] for i in song_order]
     audio_urls = [audio_urls[i] for i in song_order]
     image_urls = [image_urls[i] for i in song_order]
