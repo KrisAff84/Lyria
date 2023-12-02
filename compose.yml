@@ -1,5 +1,5 @@
 services:
-  django_gunicorn:
+  django_app:
     image: krisaff84/lyria:latest
     container_name: django_app
     env_file:
@@ -23,7 +23,7 @@ services:
       - frontend
       - backend
     depends_on:
-      - django_gunicorn
+      - django_app
     restart: always
     logging: 
         driver: "json-file"
