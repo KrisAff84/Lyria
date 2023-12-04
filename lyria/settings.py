@@ -94,6 +94,8 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# Needs to be removed as it isn't being used for staticfiles
 STORAGES = {
     "default": {
         "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
@@ -142,7 +144,9 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# Commented out to push to main branch
 # STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+# STATIC_ROOT = '/var/www/Lyria/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

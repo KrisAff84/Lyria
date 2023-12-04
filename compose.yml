@@ -2,6 +2,7 @@ services:
   app:
     container_name: app
     image: krisaff84/lyria:working
+
     env_file:
       - .env
     networks:
