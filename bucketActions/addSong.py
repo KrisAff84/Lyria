@@ -10,6 +10,7 @@ song_name = input("Enter the name of the song you want to add(separate words wit
 audio_file = input("Enter the path to the audio file: ")
 image_file = input("Enter the path to the image file: ")
 
+s3.put_object(Bucket=bucket_name, Key=f"songs/{song_name}/")
 s3.upload_file(audio_file, bucket_name, f"songs/{song_name}/audio_file.mp3")
 s3.upload_file(image_file, bucket_name, f"songs/{song_name}/image_file.jpg")
 

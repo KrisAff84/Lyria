@@ -191,18 +191,25 @@
         const audioPlayer = document.getElementById("audio-player");
         const playPauseButton = document.getElementById("play-pause");
 
-        const songTitleString = "{{ song_list|safe }}".replaceAll(/[\[\]\']/g, '');
-        const songTitles = songTitleString.split(',');
+        const songTitleString = "{{ song_list }}".replaceAll(/[\[\]]/g, '');  // Remove brackets
+        const songTitles = decodeEntities(songTitleString).split(',').map(item => item.trim().replace(/^['"]|['"]$/g, ''));
 
-        const songUrlString = "{{ audio_urls|safe }}".replaceAll(/[\[\]\']/g, '');
-        const songUrls = songUrlString.split(',');
+        const songUrlString = "{{ audio_urls }}".replaceAll(/[\[\]]/g, '');  // Remove brackets
+        const songUrls = decodeEntities(songUrlString).split(',').map(item => item.trim().replace(/^['"]|['"]$/g, ''));
 
-        const ImageUrlString = "{{ image_urls|safe }}".replaceAll(/[\[\]\']/g, '');
-        const ImageUrls = ImageUrlString.split(',');
+        const imageUrlString = "{{ image_urls }}".replaceAll(/[\[\]]/g, '');  // Remove brackets
+        const imageUrls = decodeEntities(imageUrlString).split(',').map(item => item.trim().replace(/^['"]|['"]$/g, ''));
+
+        // Helper function to decode HTML entities
+        function decodeEntities(encodedString) {
+        const parser = new DOMParser();
+        const dom = parser.parseFromString(`<body>${encodedString}</body>`, 'text/html');
+        return dom.body.textContent;
+        }
         
         function updateAudioPlayer(newIdx) {
                     document.getElementById("dynamic-title").innerText = songTitles[newIdx];
-                    document.getElementById("song-image").src = ImageUrls[newIdx];
+                    document.getElementById("song-image").src = imageUrls[newIdx];
 
                     fetch(songUrls[newIdx])
                         .then(response => {
