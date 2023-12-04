@@ -1,6 +1,6 @@
 services:
   django_app:
-    image: krisaff84/lyria:latest
+    image: krisaff84/lyria:test2
     container_name: django_app
     env_file:
       - .env

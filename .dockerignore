@@ -1,0 +1,6 @@
+testing.py
+.env
+.venv/
+.vscode/
+terraform/
+bucketActions/
