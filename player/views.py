@@ -8,8 +8,8 @@ aws_s3_region_name = settings.AWS_S3_REGION_NAME
 cloudfront_url = settings.CLOUDFRONT_URL
 
 # Remove for Production - Instances use IAM roles instead
-# aws_access_key_id = settings.AWS_ACCESS_KEY_ID
-# aws_secret_access_key = settings.AWS_SECRET_ACCESS_KEY
+aws_access_key_id = settings.AWS_ACCESS_KEY_ID
+aws_secret_access_key = settings.AWS_SECRET_ACCESS_KEY
 
 def index(request):
     

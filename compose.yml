@@ -1,7 +1,8 @@
 services:
-  django_app:
-    image: krisaff84/lyria:test2
-    container_name: django_app
+  app:
+    container_name: app
+    image: krisaff84/lyria:working
+
     env_file:
       - .env
     networks:
@@ -12,6 +13,7 @@ services:
         options: 
           max-size: "10m"
           max-file: "3"
+    
   nginx: 
     image: nginx:alpine3.18
     container_name: nginx
@@ -23,7 +25,7 @@ services:
       - frontend
       - backend
     depends_on:
-      - django_app
+      - app
     restart: always
     logging: 
         driver: "json-file"
