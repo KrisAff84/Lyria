@@ -1,6 +1,4 @@
 import boto3
-from django.conf import settings
-
 
 aws_s3_region_name = 'us-east-2'
 bucket_name = 'lyria-storage'
