@@ -199,7 +199,6 @@
 
         const imageUrlString = "{{ image_urls }}".replaceAll(/[\[\]]/g, '');  // Remove brackets
         const imageUrls = decodeEntities(imageUrlString).split(',').map(item => item.trim().replace(/^['"]|['"]$/g, ''));
-        console.log(imageUrls);
 
         // Helper function to decode HTML entities
         function decodeEntities(encodedString) {
