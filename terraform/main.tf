@@ -293,28 +293,28 @@ resource "aws_lb_listener" "https" {
 # if you don't want a bastion host
 ###########################################
 
-# resource "aws_instance" "bastion" {
-#   ami           = var.ami_bastion
-#   instance_type = var.instance_type
-#   key_name      = var.key_name
-#   vpc_security_group_ids = [
-#     aws_security_group.bastion_sg.id
-#   ]
-#   subnet_id = aws_subnet.public1.id
-#   tags = {
-#     Name = "${var.name_prefix}-bastion"
-#   }
-# }
+resource "aws_instance" "bastion" {
+  ami           = var.ami_bastion
+  instance_type = var.instance_type
+  key_name      = var.key_name
+  vpc_security_group_ids = [
+    aws_security_group.bastion_sg.id
+  ]
+  subnet_id = aws_subnet.public1.id
+  tags = {
+    Name = "${var.name_prefix}-bastion"
+  }
+}
 
-# output "bastion_ip" {
-#   description = "Public IP of the bastion host"
-#   value       = aws_instance.bastion.public_ip
-# }
+output "bastion_ip" {
+  description = "Public IP of the bastion host"
+  value       = aws_instance.bastion.public_ip
+}
 
-# output "bastion_instance_id" {
-#   description = "Instance ID of the bastion host"
-#   value       = aws_instance.bastion.id
-# }
+output "bastion_instance_id" {
+  description = "Instance ID of the bastion host"
+  value       = aws_instance.bastion.id
+}
 
 ##################################################
 # Security Groups

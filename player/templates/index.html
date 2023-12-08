@@ -171,16 +171,7 @@
         </div>
 
         <div id="list-container">
-            <div id="song-list">
-                <ul>
-                    {% for song in song_list %}
-                    <!-- updateAudioPlayer with newIdx const being index of song_list-->
-                    <li onclick="updateAudioPlayer({{ forloop.counter0 }})">{{ song }}</li>
-                    <!-- call updateAudioPlayer function -->
-                    
-                    {% endfor %}
-                </ul>
-            </div>
+            <div id="song-list"><ul></ul></div>
         </div>
     </div>
     
@@ -191,25 +182,52 @@
         const audioPlayer = document.getElementById("audio-player");
         const playPauseButton = document.getElementById("play-pause");
 
-        const songTitleString = "{{ song_list }}".replaceAll(/[\[\]]/g, '');  // Remove brackets
-        const songTitles = decodeEntities(songTitleString).split(',').map(item => item.trim().replace(/^['"]|['"]$/g, ''));
+        const songTitleString = "{{ song_list|safe }}".replaceAll(/[\[\]\'"]/g, '');
+        const songTitles = songTitleString.split(',');
 
-        const songUrlString = "{{ audio_urls }}".replaceAll(/[\[\]]/g, '');  // Remove brackets
-        const songUrls = decodeEntities(songUrlString).split(',').map(item => item.trim().replace(/^['"]|['"]$/g, ''));
+        // let songTitles = "{{ song_list|safe }}". replaceAll(/[\[\]]/g, '').split(',');
+        // console.log(songTitles);
+        // for (let i = 0; i < songTitles.length; i++) {
+        //     let title = songTitles[i].trim();
+        //     title = title.replace(/^['"]+|['"]+$/g, ''); // remove single and double quotes at the ends
+        //     title = title.replaceAll(/[*]/g, "'")
+        //     songTitles[i] = title;
+        // }
 
-        const imageUrlString = "{{ image_urls }}".replaceAll(/[\[\]]/g, '');  // Remove brackets
-        const imageUrls = decodeEntities(imageUrlString).split(',').map(item => item.trim().replace(/^['"]|['"]$/g, ''));
+        // const songUrlString = "{{ audio_urls|safe }}".replaceAll(/[\[\]\']/g, '');
+        // const songUrls = songUrlString.split(',');
 
-        // Helper function to decode HTML entities
-        function decodeEntities(encodedString) {
-        const parser = new DOMParser();
-        const dom = parser.parseFromString(`<body>${encodedString}</body>`, 'text/html');
-        return dom.body.textContent;
+        let songUrls = "{{ audio_urls|safe }}".replaceAll(/[\[\]]/g, '').split(',');
+        for (let i = 0; i < songUrls.length; i++) {
+            let url = songUrls[i].trim();
+            url = url.replace(/^['"]+|['"]+$/g, ''); // remove single and double quotes at the ends
+            songUrls[i] = url;
+        }
+
+        // const ImageUrlString = "{{ image_urls|safe }}".replaceAll(/[\[\]\']/g, '');
+        // const ImageUrls = ImageUrlString.split(',');
+
+        let ImageUrls = "{{ image_urls|safe }}".replaceAll(/[\[\]]/g, '').split(',');
+        for (let i = 0; i < ImageUrls.length; i++) {
+            let url = ImageUrls[i].trim();
+            url = url.replace(/^['"]+|['"]+$/g, ''); // remove single and double quotes at the ends
+            ImageUrls[i] = url;
+        }
+        // console.log(ImageUrls);
+
+        for (let i = 0; i < songTitles.length; i++) {
+        let listItem = document.createElement("li");
+        listItem.textContent = songTitles[i];
+        listItem.onclick = function() {
+            updateAudioPlayer(i);
+        };
+
+        document.getElementById("song-list").getElementsByTagName("ul")[0].appendChild(listItem);
         }
         
         function updateAudioPlayer(newIdx) {
                     document.getElementById("dynamic-title").innerText = songTitles[newIdx];
-                    document.getElementById("song-image").src = imageUrls[newIdx];
+                    document.getElementById("song-image").src = ImageUrls[newIdx];
 
                     fetch(songUrls[newIdx])
                         .then(response => {

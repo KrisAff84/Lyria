@@ -1,7 +1,7 @@
 services:
   app:
     container_name: app
-    image: krisaff84/lyria:working
+    image: krisaff84/lyria:latest
 
     env_file:
       - .env

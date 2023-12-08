@@ -96,17 +96,6 @@ DATABASES = {
 }
 
 # Needs to be removed as it isn't being used for staticfiles
-STORAGES = {
-    "default": {
-        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
-        "OPTIONS": {
-            "bucket_name": config("AWS_STORAGE_BUCKET_NAME"),
-            "region_name": config("AWS_S3_REGION_NAME"),
-            "aws_access_key_id": config("AWS_ACCESS_KEY_ID"),
-            "aws_secret_access_key": config("AWS_SECRET_ACCESS_KEY"),
-        }
-    }
-}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
