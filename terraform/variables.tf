@@ -1,4 +1,21 @@
 ####################################################
+#####    Permissions
+####################################################
+
+variable "access_key" {
+  description = "AWS Access Key"
+  default = " "
+  sensitive = true
+}
+
+variable "secret_key" {
+  description = "AWS Secret Key"
+  default = " "
+  sensitive = true
+}
+
+
+####################################################
 #####    Network
 ####################################################
 
@@ -27,8 +44,8 @@ variable "instance_type" {
 }
 
 variable "ami_main" {
-  description = "Default AMI is Ubuntu 22.04 and runs Docker containers on launch"
-  default     = "ami-0ded2a3ea13cc0838"
+  description = "lyria_v3 image"
+  default     = "ami-047771a78c617ae64"
 }
 
 variable "ami_bastion" {
