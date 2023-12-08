@@ -31,3 +31,5 @@ cloudfront.create_invalidation(
         'CallerReference': str(datetime.timestamp(datetime.now()))
     }
 )
+
+print(f'{bucket_key} replaced successfully')
