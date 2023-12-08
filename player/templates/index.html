@@ -141,15 +141,14 @@
     </style>
 </head>
 
-<body>
-    <body style="background-color:var(--color1);"></body>
+<body style="background-color:var(--color1);">
     <div id="player-container">
         <div class="player-title">
-            <body>Meet The Afflerbaughs</body>
+            Meet The Afflerbaughs
         </div>
         <img id="song-image" src= "{{ current_image_url }}" alt="Song Image">
         <div class="twinty_link">
-            <body>Photos by <a class="custom-link" href="https://www.twintyphotography.com" target="_blank">Twinty Photography</a><body>
+            Photos by <a class="custom-link" href="https://www.twintyphotography.com" target="_blank">Twinty Photography</a>
         </div>
         <audio id="audio-player" controls>
             Your browser does not support the audio element.
@@ -223,10 +222,14 @@
                 playPauseButton.innerHTML = `<ion-icon name="pause-circle"></ion-icon>`;
                 audioPlayer.removeEventListener("canplay", onCanPlay);  // Remove the event listener after the first playback
             });
-
+            
+            checkPlayPauseState();
             songIdx = newIdx;
             }
-    
+            
+            // Load audio for the first song when the page loads
+            loadAudioForFirstSong();
+            
         document.addEventListener("DOMContentLoaded", function () {
             const skipBackwardButton = document.getElementById("skip-backward");
             const skipForwardButton = document.getElementById("skip-forward");
@@ -236,19 +239,26 @@
             // Set initial title
             document.getElementById("dynamic-title").innerText = songTitles[songIdx];
     
-            // Load audio for the first song when the page loads
-            loadAudioForFirstSong();
     
             playPauseButton.addEventListener("click", function () {
-                if (audioPlayer.paused) {
-                    audioPlayer.play();
-                    playPauseButton.innerHTML = `<ion-icon name="pause-circle"></ion-icon>`;
-                } else {
-                    audioPlayer.pause();
-                    playPauseButton.innerHTML = `<ion-icon name="play-circle"></ion-icon>`;
-                }
+                playAudio()
+                    .then(() => {
+                        // If the audio is playing, show the pause icon
+                        if (audioPlayer.paused) {
+                            playPauseButton.innerHTML = `<ion-icon name="play-circle"></ion-icon>`;
+                        } else {
+                            playPauseButton.innerHTML = `<ion-icon name="pause-circle"></ion-icon>`;
+                        }
+                        checkPlayPauseState();
+                    })
+                    .catch(error => {
+                        console.error("Autoplay error:", error);
+                        // Show the play icon and let the user initiate playback
+                        playPauseButton.innerHTML = `<ion-icon name="play-circle"></ion-icon>`;
+                        checkPlayPauseState();
+                    });
             });
-    
+                
             skipBackwardButton.addEventListener("click", function () {
                 const newIdx = (songIdx - 1 + songTitles.length) % songTitles.length;
                 songIdx = newIdx;
@@ -267,6 +277,14 @@
                 songIdx = newIdx;
                 updateAudioPlayer(newIdx);
             });
+
+            audioPlayer.addEventListener("playing", function () {
+                checkPlayPauseState();
+            });
+
+            audioPlayer.addEventListener("pause", function () {
+                checkPlayPauseState();
+            });
         });
     
         // Dynamically create the song list
@@ -278,6 +296,25 @@
             };
     
             document.getElementById("song-list").getElementsByTagName("ul")[0].appendChild(listItem);
+        }
+
+        function checkPlayPauseState() {
+            if (audioPlayer.paused) {
+                playPauseButton.innerHTML = `<ion-icon name="play-circle"></ion-icon>`;
+            } else {
+                playPauseButton.innerHTML = `<ion-icon name="pause-circle"></ion-icon>`;
+            }
+        }
+
+        function playAudio() {
+            return new Promise((resolve, reject) => {
+                if (audioPlayer.paused) {
+                    audioPlayer.play();
+                    resolve();
+                } else {
+                    audioPlayer.pause();
+                }
+            });
         }
     </script>
     
