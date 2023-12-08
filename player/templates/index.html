@@ -171,145 +171,118 @@
         </div>
 
         <div id="list-container">
-            <div id="song-list"><ul></ul></div>
+            <div id="song-list">
+                <ul>
+                    
+                </ul>
+            </div>
         </div>
     </div>
     
- 
 
-   <script>
+    <script>
         let songIdx = 0;
         const audioPlayer = document.getElementById("audio-player");
         const playPauseButton = document.getElementById("play-pause");
-
-        const songTitleString = "{{ song_list|safe }}".replaceAll(/[\[\]\'"]/g, '');
-        const songTitles = songTitleString.split(',');
-
-        // let songTitles = "{{ song_list|safe }}". replaceAll(/[\[\]]/g, '').split(',');
-        // console.log(songTitles);
-        // for (let i = 0; i < songTitles.length; i++) {
-        //     let title = songTitles[i].trim();
-        //     title = title.replace(/^['"]+|['"]+$/g, ''); // remove single and double quotes at the ends
-        //     title = title.replaceAll(/[*]/g, "'")
-        //     songTitles[i] = title;
-        // }
-
-        // const songUrlString = "{{ audio_urls|safe }}".replaceAll(/[\[\]\']/g, '');
-        // const songUrls = songUrlString.split(',');
-
-        let songUrls = "{{ audio_urls|safe }}".replaceAll(/[\[\]]/g, '').split(',');
-        for (let i = 0; i < songUrls.length; i++) {
-            let url = songUrls[i].trim();
-            url = url.replace(/^['"]+|['"]+$/g, ''); // remove single and double quotes at the ends
-            songUrls[i] = url;
+    
+        const songTitleString = "{{ song_list|safe }}".replaceAll(/[\[\]\']/g, '');
+        const songTitlesTrimmed = songTitleString.replaceAll(/[*]/g, "'");
+        const songTitles = songTitlesTrimmed.split(',');
+    
+        const songUrlString = "{{ audio_urls|safe }}".replaceAll(/[\[\]\']/g, '');
+        const songUrls = songUrlString.split(',');
+    
+        const ImageUrlString = "{{ image_urls|safe }}".replaceAll(/[\[\]\']/g, '');
+        const ImageUrls = ImageUrlString.split(',');
+    
+        function loadAudioForFirstSong() {
+            const audio = new Audio();
+            audio.src = songUrls[0];
+            audio.preload = "auto";
+    
+            // Handle the canplaythrough event to ensure the audio is fully buffered
+            audio.addEventListener("canplaythrough", function onCanPlayThrough() {
+                audioPlayer.src = audio.src;
+                audioPlayer.removeEventListener("canplaythrough", onCanPlayThrough);  // Remove the event listener after loading the first song
+            });
+    
+            // Load the audio for the first song
+            audio.load();
         }
-
-        // const ImageUrlString = "{{ image_urls|safe }}".replaceAll(/[\[\]\']/g, '');
-        // const ImageUrls = ImageUrlString.split(',');
-
-        let ImageUrls = "{{ image_urls|safe }}".replaceAll(/[\[\]]/g, '').split(',');
-        for (let i = 0; i < ImageUrls.length; i++) {
-            let url = ImageUrls[i].trim();
-            url = url.replace(/^['"]+|['"]+$/g, ''); // remove single and double quotes at the ends
-            ImageUrls[i] = url;
-        }
-        // console.log(ImageUrls);
-
-        for (let i = 0; i < songTitles.length; i++) {
-        let listItem = document.createElement("li");
-        listItem.textContent = songTitles[i];
-        listItem.onclick = function() {
-            updateAudioPlayer(i);
-        };
-
-        document.getElementById("song-list").getElementsByTagName("ul")[0].appendChild(listItem);
-        }
-        
+    
         function updateAudioPlayer(newIdx) {
-                    document.getElementById("dynamic-title").innerText = songTitles[newIdx];
-                    document.getElementById("song-image").src = ImageUrls[newIdx];
+            document.getElementById("dynamic-title").innerText = songTitles[newIdx];
+            document.getElementById("song-image").src = ImageUrls[newIdx];
 
-                    fetch(songUrls[newIdx])
-                        .then(response => {
-                            if (response.ok) {
-                                return response.blob();
-                            }
-                            throw new Error("Network response was not ok.");
-                        })
-                        .then(blob => {
-                            const blobUrl = URL.createObjectURL(blob);
-                            audioPlayer.src = blobUrl;
-                            audioPlayer.play();
-                            playPauseButton.innerHTML = `<ion-icon name="pause-circle"></ion-icon>`;
-                        })
-                        .catch(error => {
-                            console.error("Error:", error);
-                        });
-                    songIdx = newIdx;
-                }
+            // Update both the audio file and the audio player source
+            audioPlayer.src = songUrls[newIdx];
+
+            // Handle the canplay event to start playback
+            audioPlayer.addEventListener("canplay", function onCanPlay() {
+                audioPlayer.play();
+                playPauseButton.innerHTML = `<ion-icon name="pause-circle"></ion-icon>`;
+                audioPlayer.removeEventListener("canplay", onCanPlay);  // Remove the event listener after the first playback
+            });
+
+            songIdx = newIdx;
+            }
+    
         document.addEventListener("DOMContentLoaded", function () {
-
             const skipBackwardButton = document.getElementById("skip-backward");
             const skipForwardButton = document.getElementById("skip-forward");
-
+    
             songIdx = 0;
-
+    
             // Set initial title
             document.getElementById("dynamic-title").innerText = songTitles[songIdx];
-
-            let playbackPosition = 0;
-
+    
+            // Load audio for the first song when the page loads
+            loadAudioForFirstSong();
+    
             playPauseButton.addEventListener("click", function () {
                 if (audioPlayer.paused) {
-                    const playUrl = songUrls[songIdx];
-
-                    fetch(playUrl)
-                        .then(response => {
-                            if (response.ok) {
-                                return response.blob();
-                            }
-                            throw new Error("Network response was not ok.");
-                        })
-                        .then(blob => {
-                            const blobUrl = URL.createObjectURL(blob);
-                            audioPlayer.src = blobUrl;
-                            audioPlayer.currentTime = playbackPosition;
-                            audioPlayer.play();
-                            playPauseButton.innerHTML = `<ion-icon name="pause-circle"></ion-icon>`;
-                        })
-                        .catch(error => {
-                            console.error("Error:", error);
-                        });
+                    audioPlayer.play();
+                    playPauseButton.innerHTML = `<ion-icon name="pause-circle"></ion-icon>`;
                 } else {
-                    playbackPosition = audioPlayer.currentTime;
                     audioPlayer.pause();
                     playPauseButton.innerHTML = `<ion-icon name="play-circle"></ion-icon>`;
                 }
             });
-
+    
             skipBackwardButton.addEventListener("click", function () {
                 const newIdx = (songIdx - 1 + songTitles.length) % songTitles.length;
                 songIdx = newIdx;
                 updateAudioPlayer(newIdx);
             });
-
+    
             skipForwardButton.addEventListener("click", function () {
                 const newIdx = (songIdx + 1) % songTitles.length;
                 songIdx = newIdx;
                 updateAudioPlayer(newIdx);
             });
-
+    
+            // Handle the ended event to move to the next song
             audioPlayer.addEventListener("ended", function () {
                 const newIdx = (songIdx + 1) % songTitles.length;
                 songIdx = newIdx;
                 updateAudioPlayer(newIdx);
             });
-
-            playbackPosition = 0;
-        });      
+        });
+    
+        // Dynamically create the song list
+        for (let i = 0; i < songTitles.length; i++) {
+            let listItem = document.createElement("li");
+            listItem.textContent = songTitles[i];
+            listItem.onclick = function () {
+                updateAudioPlayer(i);
+            };
+    
+            document.getElementById("song-list").getElementsByTagName("ul")[0].appendChild(listItem);
+        }
     </script>
+    
 
-    <script src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+<script src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 
 </body>
 

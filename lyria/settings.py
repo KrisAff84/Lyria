@@ -37,7 +37,10 @@ AWS_S3_REGION_NAME = config("AWS_S3_REGION_NAME")
 
 CLOUDFRONT_URL = config("CLOUDFRONT_URL")
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    'lyria-elb-1347266760.us-east-2.elb.amazonaws.com',
+                 '*',
+]
 
 
 # Application definition

@@ -28,7 +28,7 @@ variable "instance_type" {
 
 variable "ami_main" {
   description = "Default AMI is Ubuntu 22.04 and runs Docker containers on launch"
-  default     = "ami-05ad4e8728c4c40c0"
+  default     = "ami-0ded2a3ea13cc0838"
 }
 
 variable "ami_bastion" {
