@@ -1,4 +1,21 @@
 ####################################################
+#####    Permissions
+####################################################
+
+variable "access_key" {
+  description = "AWS Access Key"
+  default = " "
+  sensitive = true
+}
+
+variable "secret_key" {
+  description = "AWS Secret Key"
+  default = " "
+  sensitive = true
+}
+
+
+####################################################
 #####    Network
 ####################################################
 

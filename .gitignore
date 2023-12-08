@@ -4,3 +4,4 @@ testing.py
 testing2.py
 *.tfstate
 *.tfstate.backup
+*.tfvars
