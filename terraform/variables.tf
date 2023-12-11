@@ -4,14 +4,14 @@
 
 variable "access_key" {
   description = "AWS Access Key"
-  default = " "
-  sensitive = true
+  default     = ""
+  sensitive   = true
 }
 
 variable "secret_key" {
   description = "AWS Secret Key"
-  default = " "
-  sensitive = true
+  default     = ""
+  sensitive   = true
 }
 
 

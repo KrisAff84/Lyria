@@ -3,9 +3,9 @@
 #####################################
 
 provider "aws" {
-  region     = var.aws_region
   access_key = var.access_key
   secret_key = var.secret_key
+  region     = var.aws_region
 }
 
 ###########################################
@@ -248,7 +248,11 @@ resource "aws_lb" "elb" {
     aws_subnet.public2.id,
     aws_subnet.public3.id
   ]
-
+  access_logs {
+    bucket  = "lyria-logs"
+    prefix  = "elb_logs"
+    enabled = true
+  }
 }
 resource "aws_lb_target_group" "lb_tg" {
   name     = "${var.name_prefix}-tg"
