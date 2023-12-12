@@ -1,11 +1,12 @@
 import boto3
 from datetime import datetime
 
+session = boto3.Session(profile_name='admin-profile')
 aws_s3_region_name = 'us-east-2'
 bucket_name = 'lyria-storage'
 
-s3 = boto3.client('s3', region_name=aws_s3_region_name)
-cloudfront = boto3.client('cloudfront')
+s3 = session.client('s3', region_name=aws_s3_region_name)
+cloudfront = session.client('cloudfront')
 print()
 print("Current files the bucket: ")
 print()
@@ -19,6 +20,8 @@ file_path = input("Enter the path to the new file: ")
 
 s3.delete_object(Bucket=bucket_name, Key=bucket_key)
 s3.upload_file(file_path, bucket_name, bucket_key)
+print('File replaced successfully')
+
 cloudfront.create_invalidation(
     DistributionId='E3GHN5TVQEVZ3J',
     InvalidationBatch= {
@@ -32,4 +35,4 @@ cloudfront.create_invalidation(
     }
 )
 
-print(f'{bucket_key} replaced successfully')
+print('Cloudfront cache invalidated successfully')
