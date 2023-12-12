@@ -3,8 +3,7 @@
 #####################################
 
 provider "aws" {
-  access_key = var.access_key
-  secret_key = var.secret_key
+  profile = "admin-profile"
   region     = var.aws_region
 }
 
@@ -200,7 +199,7 @@ resource "aws_autoscaling_group" "asg" {
     id      = aws_launch_template.asg_lt.id
     version = "$Latest"
   }
-  max_size          = 3
+  max_size          = 4
   min_size          = 1
   health_check_type = "ELB"
   desired_capacity  = 1

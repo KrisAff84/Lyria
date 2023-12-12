@@ -1,8 +1,10 @@
 import boto3
 
+session = boto3.Session(profile_name='admin-profile')
 aws_s3_region_name = 'us-east-2'
 bucket_name = 'lyria-storage'
-s3 = boto3.client('s3', region_name=aws_s3_region_name)
+
+s3 = session.client('s3', region_name=aws_s3_region_name)
 
 song_name = input('Enter the name of the song you want to add(separate words with underscores): ')
 audio_file = input('Enter the path to the audio file: ')
