@@ -28,10 +28,8 @@ SECRET_KEY = config("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DEBUG", default=False, cast=bool)
 
-# AWS VARIABLES - Comment out secret keys for production - Use IAM role instead
+# AWS VARIABLES - Remove keys for production - Use IAM role instead
 
-AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY")
 AWS_STORAGE_BUCKET_NAME = config("AWS_STORAGE_BUCKET_NAME")
 AWS_S3_REGION_NAME = config("AWS_S3_REGION_NAME")
 

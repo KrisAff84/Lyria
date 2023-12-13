@@ -1,24 +1,17 @@
 from django.shortcuts import render
 from django.conf import settings
 import boto3
-import json
 
 
 bucket_name = settings.AWS_STORAGE_BUCKET_NAME
 aws_s3_region_name = settings.AWS_S3_REGION_NAME
 cloudfront_url = settings.CLOUDFRONT_URL
 
-# Remove for Production - Instances use IAM roles instead
-aws_access_key_id = settings.AWS_ACCESS_KEY_ID
-aws_secret_access_key = settings.AWS_SECRET_ACCESS_KEY
-
 def index(request):
     
     s3 = boto3.client(
         's3', 
         region_name=aws_s3_region_name, 
-        aws_access_key_id=aws_access_key_id,
-        aws_secret_access_key=aws_secret_access_key,
         )
 
     title_keys = [] # song list with underscores

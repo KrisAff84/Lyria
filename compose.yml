@@ -1,7 +1,7 @@
 services:
   app:
     container_name: app
-    image: krisaff84/lyria:latest
+    image: krisaff84/lyria:latest_iam_role
 
     env_file:
       - .env
