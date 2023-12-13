@@ -17,8 +17,8 @@ def index(request):
     s3 = boto3.client(
         's3', 
         region_name=aws_s3_region_name, 
-        # aws_access_key_id=aws_access_key_id,
-        # aws_secret_access_key=aws_secret_access_key,
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key,
         )
 
     title_keys = [] # song list with underscores
