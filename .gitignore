@@ -6,3 +6,6 @@ testing2.py
 *.tfstate.backup
 *.tfvars
 logBucket/
+db.sqlite3
+staticfiles/
+```
