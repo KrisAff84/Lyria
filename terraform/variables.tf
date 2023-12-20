@@ -26,12 +26,12 @@ variable "aws_region" {
 
 variable "vpc_cidr" {
   description = "CIDR block for VPC"
-  default     = "10.0.0.0/16"
+  default     = "10.1.0.0/16"
 }
 
 variable "name_prefix" {
   description = "Naming prefix for all resources"
-  default     = "lyria"
+  default     = "lyria-green"
 }
 
 ####################################################
@@ -44,8 +44,8 @@ variable "instance_type" {
 }
 
 variable "ami_main" {
-  description = "lyria_v3 image"
-  default     = "ami-047771a78c617ae64"
+  description = "lyria_v4 image"
+  default     = "ami-0e1fe5145a3f9a9c4"
 }
 
 variable "ami_bastion" {

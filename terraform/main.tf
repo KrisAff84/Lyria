@@ -4,7 +4,7 @@
 
 provider "aws" {
   profile = "admin-profile"
-  region     = var.aws_region
+  region  = var.aws_region
 }
 
 ###########################################
@@ -122,22 +122,19 @@ resource "aws_route_table_association" "public3" {
 }
 
 ###########################################
-# NAT Gateway and Private Route Table
+# VPC Endpoint and Private Route Table
 ###########################################
 
-########## NAT Gateway ##########
+########## VPC Endpoint ##########
 
-resource "aws_eip" "nat" {
-  domain = "vpc"
+resource "aws_vpc_endpoint" "bucket_endpoint" {
+  service_name = "com.amazonaws.${var.aws_region}.s3"
+  vpc_id       = aws_vpc.main.id
+  route_table_ids = [
+    aws_route_table.private.id
+  ]
   tags = {
-    Name = "${var.name_prefix}-nat-eip"
-  }
-}
-resource "aws_nat_gateway" "nat" {
-  allocation_id = aws_eip.nat.id
-  subnet_id     = aws_subnet.public1.id
-  tags = {
-    Name = "${var.name_prefix}-nat-gw"
+    Name = "${var.name_prefix}-bucket-endpoint"
   }
 }
 
@@ -145,16 +142,15 @@ resource "aws_nat_gateway" "nat" {
 
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.main.id
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_nat_gateway.nat.id
-  }
+  # route {
+  #   cidr_block      = "0.0.0.0/0"
+  #   vpc_endpoint_id = aws_vpc_endpoint.bucket_endpoint.id
+  # }
   tags = {
     Name = "${var.name_prefix}-private-rt"
   }
 
 }
-
 ########## Route Table Associations ##########
 
 resource "aws_route_table_association" "private1" {
@@ -481,26 +477,26 @@ resource "aws_iam_instance_profile" "asg_bucket_profile" {
 # Route53
 #############################################
 
-# resource "aws_route53_record" "main" {
-#   zone_id = "Z09206903VMHX9SR3PGQF"
-#   name    = "meettheafflerbaughs.com"
-#   type    = "A"
+resource "aws_route53_record" "main" {
+  zone_id = "Z09206903VMHX9SR3PGQF"
+  name    = "meettheafflerbaughs.com"
+  type    = "A"
 
-#   alias {
-#     name                   = aws_lb.elb.dns_name
-#     zone_id                = aws_lb.elb.zone_id
-#     evaluate_target_health = true
-#   }
-# }
+  alias {
+    name                   = aws_lb.elb.dns_name
+    zone_id                = aws_lb.elb.zone_id
+    evaluate_target_health = true
+  }
+}
 
-# resource "aws_route53_record" "misspelled" {
-#   zone_id = "Z06032811HZJPQ3EPMZ6P"
-#   name    = "meetheafflerbaughs.com"
-#   type    = "A"
+resource "aws_route53_record" "misspelled" {
+  zone_id = "Z06032811HZJPQ3EPMZ6P"
+  name    = "meetheafflerbaughs.com"
+  type    = "A"
 
-#   alias {
-#     name                   = aws_lb.elb.dns_name
-#     zone_id                = aws_lb.elb.zone_id
-#     evaluate_target_health = true
-#   }
-# }
+  alias {
+    name                   = aws_lb.elb.dns_name
+    zone_id                = aws_lb.elb.zone_id
+    evaluate_target_health = true
+  }
+}
