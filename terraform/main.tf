@@ -217,6 +217,12 @@ resource "aws_autoscaling_group" "asg" {
     min_healthy_percentage = 34
     max_healthy_percentage = 134
   }
+  enabled_metrics = [
+    "GroupInServiceInstances",
+    "GroupTotalInstances",
+    "GroupInServiceCapacity",
+    "GroupTotalCapacity"
+  ]
 }
 
 resource "aws_autoscaling_policy" "main" {
