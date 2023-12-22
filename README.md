@@ -29,8 +29,10 @@ This music player was built using Django. In addition to the actual Django proje
     - views.py
 - manage.py
 - requirements.txt
+- gunicorn.conf.py
 - Dockerfile
 - compose.yml
+- .dockerignore
 - terraform
     - main.tf
     - outputs.tf
@@ -40,8 +42,8 @@ This music player was built using Django. In addition to the actual Django proje
     - addSong.py
     - listObjectKeys.py
     - replaceFile.py
-- gunicorn.conf.py
 - nginx.conf
+- .gitignore
 - README.md
 
 ### .env File
@@ -59,6 +61,6 @@ For development you also need to include:
 - AWS_ACCESS_KEY_ID
 - AWS_SECRET_ACCESS_KEY
 
-My suggestion is to not use your Admin user for these keys. Create a user with only read access to your S3 bucket and generate keys for that user. Include the _.env_ file in _.gitignore_. 
+**Do not use your Admin user for these keys.** Create a user with read only access to your S3 bucket, and generate keys for that user. Include the _.env_ file in _.gitignore_. 
 
 For production, use an IAM role instead of keys altogether. 
