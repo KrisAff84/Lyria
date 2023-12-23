@@ -19,7 +19,7 @@ start_instance = ec2.start_instances(
     ]
 )
 
-waiter = ec2.get_waiter('instance_running')
+waiter = ec2.get_waiter('instance_status_ok')
 waiter.wait(InstanceIds=[instance_id])
 response = ec2.describe_instances(InstanceIds=[instance_id])
 public_ip = response['Reservations'][0]['Instances'][0]['PublicIpAddress']
