@@ -69,6 +69,7 @@ jobs:
         with:
           host: ubuntu@${{env.DEV_SERVER_IP}}
           key: ${{secrets.LYRIA_PRIVATE_KEY}}
+          port: 22
           script: |
             docker compose down
             docker prune -f
