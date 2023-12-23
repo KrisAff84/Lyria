@@ -73,7 +73,14 @@ jobs:
           script: |
             docker compose down
             docker prune -f
+            export AWS_STORAGE_BUCKET_NAME=${{env.AWS_STORAGE_BUCKET_NAME}}
+            export AWS_S3_REGION_NAME=${{env.AWS_S3_REGION_NAME}}
+            export CLOUDFRONT_URL=${{env.CLOUDFRONT_URL}}
+            export DEBUG=${{env.DEBUG}}
+            export SONG_ORDER=${{env.SONG_ORDER}}
+            export SECRET_KEY=${{env.SECRET_KEY}}
             docker compose up -d
+            unset SECRET_KEY
       
       - name: Create AMI from instance
         if: github.event.inputs.approve 
