@@ -30,5 +30,4 @@ waiter = ec2.get_waiter('image_available')
 waiter.wait(ImageIds=[image_id])
 
 print(f"::set-output name=image_id::{image_id}")
-
-
+print(image_id)

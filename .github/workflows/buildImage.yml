@@ -82,9 +82,10 @@ jobs:
             docker compose up -d
             unset SECRET_KEY
       
-      - name: Create AMI from instance
-        if: github.event.inputs.approve 
+      - name: Create AMI from instance 
         working-directory: ./lyria-dev
         run: python create_ami.py
-             echo "::set-output name=image_id::${image_id}"
 
+      - name: Stop dev server
+        working-directory: ./lyria-dev
+        run: python stop_dev_server.py
