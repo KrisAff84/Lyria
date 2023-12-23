@@ -60,7 +60,6 @@ jobs:
         id: start_dev_server
         working-directory: ./lyria-dev
         run: python start_dev_server.py
-             echo "::set-output name=public_ip::${public_ip}"
 
       - name: Set environment variable for dev server IP
         run: echo "DEV_SERVER_IP=${{ steps.start_dev_server.outputs.public_ip }}" >> $GITHUB_ENV
@@ -80,3 +79,4 @@ jobs:
         working-directory: ./lyria-dev
         run: python create_ami.py
              echo "::set-output name=image_id::${image_id}"
+
