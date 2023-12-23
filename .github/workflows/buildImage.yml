@@ -67,7 +67,8 @@ jobs:
       - name: Pull Docker image and start containers on instance
         uses: appleboy/ssh-action@master
         with:
-          host: ubuntu@${{env.DEV_SERVER_IP}}
+          host: ${{env.DEV_SERVER_IP}}
+          username: ubuntu
           key: ${{secrets.LYRIA_PRIVATE_KEY}}
           port: 22
           script: |
