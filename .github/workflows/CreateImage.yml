@@ -8,7 +8,7 @@ on:
       - 'bucketActions/**'
       - 'lyria-dev/**'
       - 'terraform/**'
-      - '.github/**' 
+       
     branches:
       - main
 
