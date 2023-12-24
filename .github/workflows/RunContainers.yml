@@ -1,0 +1,98 @@
+name: Run Containers
+on: 
+  pull_request:
+    paths-ignore:
+      - 'README.md'
+      - 'bucketActions/**'
+      - 'lyria-dev/**'
+      - 'terraform/**'
+ 
+    branches:
+      - main
+
+env:
+  AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
+  AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+  AWS_STORAGE_BUCKET_NAME: 'lyria-storage'
+  AWS_S3_REGION_NAME: 'us-east-2'
+  CLOUDFRONT_URL: 'https://d3v05ohikl64ni.cloudfront.net/'
+  DEBUG: 'False'
+  SONG_ORDER: '5,3,1,0,2,4'
+  SECRET_KEY: ${{secrets.SECRET_KEY}}
+  DEV_INSTANCE_ID: 'i-0a196b4cdcbc3ed7e'
+  
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  build_docker_image:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install boto3
+        run: pip install boto3
+
+      - name: Start Development Server
+        id: start_dev_server
+        working-directory: ./lyria-dev
+        run: python start_dev_server.py
+
+      - name: Build Lyria Docker image
+        run: |
+          DATE=$(date +'%Y-%m-%d')
+          docker build --tag krisaff84/lyria:${DATE} \
+                       --tag krisaff84/lyria:latest .
+          
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{secrets.DOCKER_USERNAME}}
+          password: ${{secrets.DOCKER_PASSWORD}}
+
+      - name: Push image to Docker Hub
+        run: docker push krisaff84/lyria:$(date +'%Y-%m-%d') && docker push krisaff84/lyria:latest
+
+  pull_image_and_start_containers:
+
+    needs: build_docker_image
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install boto3
+        run: pip install boto3
+
+      - name: Get Dev Server IP
+        id: get_dev_server_ip
+        working-directory: ./lyria-dev
+        run: python get_dev_server_ip.py
+
+      - name: Set environment variable for dev server IP
+        run: echo "DEV_SERVER_IP=${{ steps.get_dev_server_ip.outputs.public_ip }}" >> $GITHUB_ENV
+
+      - name: Pull Docker image and start containers on instance
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{env.DEV_SERVER_IP}}
+          username: ubuntu
+          key: ${{secrets.LYRIA_PRIVATE_KEY}}
+          script: |
+            docker compose down
+            docker prune -f
+            export AWS_STORAGE_BUCKET_NAME=${{env.AWS_STORAGE_BUCKET_NAME}}
+            export AWS_S3_REGION_NAME=${{env.AWS_S3_REGION_NAME}}
+            export CLOUDFRONT_URL=${{env.CLOUDFRONT_URL}}
+            export DEBUG=${{env.DEBUG}}
+            export SONG_ORDER=${{env.SONG_ORDER}}
+            export SECRET_KEY=${{env.SECRET_KEY}}
+            docker compose up -d
+            unset SECRET_KEY
+
