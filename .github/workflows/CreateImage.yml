@@ -16,6 +16,7 @@ env:
   AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
   AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
   DEV_INSTANCE_ID: 'i-0a196b4cdcbc3ed7e'
+  GH_TOKEN: ${{secrets.GH_TOKEN}}
 
 jobs:
   create_image:
@@ -39,9 +40,10 @@ jobs:
           git config --global user.email 'krisaff@gmail.com'
           git add lyria-dev/ami_version.txt
           git commit -m "Increment AMI index number"
-          git push
+          git push origin main
 
       - name: Stop dev server
+        if: always()
         working-directory: ./lyria-dev
         run: python stop_dev_server.py
     
