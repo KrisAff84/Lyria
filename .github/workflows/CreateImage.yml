@@ -33,6 +33,14 @@ jobs:
         working-directory: ./lyria-dev
         run: python create_ami.py
 
+      - name: Commit changes to ami_version.txt
+        run: |
+          git config --global user.name 'KrisAff84'
+          git config --global user.email 'krisaff@gmail.com'
+          git add lyria-dev/ami_version.txt
+          git commit -m "Increment AMI index number"
+          git push
+
       - name: Stop dev server
         working-directory: ./lyria-dev
         run: python stop_dev_server.py

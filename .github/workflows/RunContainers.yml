@@ -85,6 +85,7 @@ jobs:
           username: ubuntu
           key: ${{secrets.LYRIA_PRIVATE_KEY}}
           script: |
+            apt update && apt upgrade -y
             docker compose down
             docker prune -f
             export AWS_STORAGE_BUCKET_NAME=${{env.AWS_STORAGE_BUCKET_NAME}}
