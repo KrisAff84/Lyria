@@ -40,7 +40,7 @@ jobs:
           git config --global user.email 'krisaff@gmail.com'
           git add lyria-dev/ami_version.txt
           git commit -m "Increment AMI index number"
-          git push origin main
+          git push https://$GH_TOKEN@github.com/KrisAff84/Lyria.git main
 
       - name: Stop dev server
         if: always()
