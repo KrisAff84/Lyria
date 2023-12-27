@@ -5,13 +5,6 @@ access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
 secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
 instance_id = os.environ.get('DEV_INSTANCE_ID')
 
-with open('ami_version.txt', 'r') as f:
-    ami_version = int(f.read())
-
-ami_version += 1
-
-with open('ami_version.txt', 'w') as f:
-    f.write(str(ami_version))
 
 ec2 = boto3.client(
     'ec2', 
@@ -20,9 +13,50 @@ ec2 = boto3.client(
     aws_secret_access_key=secret_access_key    
 )
 
+response = ec2.describe_images(
+    Owners=['self'],
+    Filters=[
+        {
+            'Name': 'name',
+            'Values': [
+                'lyria_v*'
+            ]
+        }
+    ]
+)
+
+version_numbers = []
+for image in response['Images']:
+    version_number = image['Name'][::-1][0]
+    version_numbers.append(int(version_number))
+
+ami_version = max(version_numbers)
+ami_version += 1
+
 response = ec2.create_image(
     InstanceId = instance_id,
     Name = f'lyria_v{ami_version}',
+    TagSpecifications=[
+        {
+            'ResourceType': 'image',
+            'Tags': [
+                {
+                    'Key': 'lyria',
+                    'Value': ''
+                },
+            ]
+        },
+        {
+            'ResourceType': 'snapshot',
+            'Tags': [
+                {
+                    'Key': 'lyria',
+                    'Value': f'v{ami_version}'
+                },
+            ]
+        },
+    ]
+    
 )
 
 image_id = response['ImageId']
