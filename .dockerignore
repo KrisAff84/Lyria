@@ -2,6 +2,7 @@ testing.py
 .env
 .venv/
 .vscode/
+__pycache__
 terraform/
 bucketActions/
 lyria-dev/
