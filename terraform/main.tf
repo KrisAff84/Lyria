@@ -193,9 +193,9 @@ resource "aws_autoscaling_group" "asg" {
   name = "${var.name_prefix}_asg"
   launch_template {
     id      = aws_launch_template.asg_lt.id
-    version = "$Latest"
+    version = aws_launch_template.asg_lt.latest_version
   }
-  max_size          = 4
+  max_size          = 3
   min_size          = 1
   health_check_type = "ELB"
   desired_capacity  = 1
@@ -207,16 +207,13 @@ resource "aws_autoscaling_group" "asg" {
   instance_refresh {
     strategy = "Rolling"
     preferences {
-      auto_rollback = true
+      auto_rollback          = true
+      min_healthy_percentage = 100
     }
   }
   target_group_arns = [
     aws_lb_target_group.lb_tg.arn
   ]
-  instance_maintenance_policy {
-    min_healthy_percentage = 34
-    max_healthy_percentage = 134
-  }
   enabled_metrics = [
     "GroupInServiceInstances",
     "GroupTotalInstances",
