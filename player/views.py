@@ -1,3 +1,4 @@
+"""Contains the views for the player app."""
 from django.shortcuts import render
 from django.conf import settings
 import boto3
@@ -8,10 +9,16 @@ aws_s3_region_name = settings.AWS_S3_REGION_NAME
 cloudfront_url = settings.CLOUDFRONT_URL
 
 def index(request):
-    
+    """Renders the index page.
+    A boto3 list_objects_v2 call is made to get the list of song keys from the S3 bucket.
+    The song keys are then used to create a list of song titles and a list of complete object keys.
+    The object keys used to create a list of image and audio urls with a CloudFront distibution 
+    placed in front of each URL.
+    The song list, audio urls, and image urls are then passed to the index.html template.
+    """
     s3 = boto3.client(
         's3', 
-        region_name=aws_s3_region_name, 
+        region_name=aws_s3_region_name,
         )
 
     title_keys = [] # song list with underscores
@@ -20,7 +27,7 @@ def index(request):
     image_urls = [] # Path to images
 
     idx = 1
-    
+
     response = s3.list_objects_v2(Bucket=bucket_name, Prefix='songs/')
 
     # Gets list of song keys without folder name
@@ -35,7 +42,7 @@ def index(request):
         image_urls.append(cloudfront_url + response['Contents'][idx]['Key'])
         idx += 1
 
-    
+
     # Replaces underscores with spaces in title_keys list
     song_list = [song.replace('_', ' ') for song in title_keys]
 
@@ -43,7 +50,7 @@ def index(request):
     song_list = [song_list[i] for i in song_order]
     audio_urls = [audio_urls[i] for i in song_order]
     image_urls = [image_urls[i] for i in song_order]
-    
+
     current_idx = 0
     current_title = song_list[current_idx]
     current_audio_url = audio_urls[current_idx]
