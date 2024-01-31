@@ -63,5 +63,6 @@ image_id = response['ImageId']
 waiter = ec2.get_waiter('image_available')
 waiter.wait(ImageIds=[image_id])
 
-print(f"::set-output name=image_id::{image_id}")
-print(image_id)
+print(f'Image ID: {image_id}')
+with open(os.environ['GITHUB_OUTPUT'], 'a') as output_file:
+    output_file.write(f'image_id={image_id}\n')
