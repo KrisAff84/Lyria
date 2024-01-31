@@ -20,4 +20,5 @@ response = ec2.describe_instances(InstanceIds=[instance_id])
 public_ip = response['Reservations'][0]['Instances'][0]['PublicIpAddress']
 
 print(f"Lyria Dev Instance is now running at: {public_ip}")
-print(f"::set-output name=public_ip::{public_ip}")
+with open(os.environ['GITHUB_OUTPUT'], 'a') as output_file:
+    output_file.write(f'public_ip={public_ip}\n')
