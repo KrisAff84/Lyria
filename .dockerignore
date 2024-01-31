@@ -10,3 +10,4 @@ mime.types
 nginx.conf
 README.md
 pylint.rc
+.github/*
