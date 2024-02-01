@@ -34,8 +34,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install boto3
-        run: pip install boto3
+      - name: Install requirements
+        run: pip install -r requirements/ci-requirements.txt
 
       - name: Start Development Server
         id: start_dev_server
@@ -47,7 +47,7 @@ jobs:
           DATE=$(date +'%Y-%m-%d')
           docker build --tag krisaff84/lyria:${DATE} \
                        --tag krisaff84/lyria:latest .
-          
+    
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -56,6 +56,12 @@ jobs:
 
       - name: Push image to Docker Hub
         run: docker push krisaff84/lyria:$(date +'%Y-%m-%d') && docker push krisaff84/lyria:latest
+
+      - name: Stop dev server
+        id: stop_dev_server
+        if: ${{ failure()}}
+        working-directory: ./lyria-dev
+        run: python stop_dev_server.py
 
   pull_image_and_start_containers:
 
