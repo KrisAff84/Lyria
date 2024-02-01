@@ -7,7 +7,7 @@ RUN apt-get update -y \
     && apt-get install -y zlib1g-dev \
     && pip install --upgrade pip 
 
-COPY requirements.txt /Lyria/requirements.txt
+COPY requirements/docker-requirements.txt /Lyria/requirements.txt
 RUN pip install -r /Lyria/requirements.txt
 
 COPY . /Lyria

@@ -52,7 +52,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'player',  
     'corsheaders',
-    'pylint_django',
 ]
 
 MIDDLEWARE = [
