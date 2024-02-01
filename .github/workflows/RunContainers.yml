@@ -4,7 +4,7 @@ on:
     paths-ignore:
       - 'README.md'
       - 'bucketActions/**'
-      - 'lyria-dev/**'
+      - 'ci_scripts/**'
       - 'terraform/**'
  
     branches:
@@ -37,7 +37,7 @@ jobs:
 
       - name: Start Development Server
         id: start_dev_server
-        working-directory: ./lyria-dev
+        working-directory: ./ci_scripts
         run: python start_dev_server.py
 
   pylint:
@@ -51,9 +51,9 @@ jobs:
 
       - name: Run Pylint
         run: | 
-          pylint player --load-plugins pylint_django --output-format=text
-          pylint lyria --load-plugins pylint_django --output-format=text
-          pylint lyria-dev --output-format=text
+          pylint player --load-plugins pylint_django --django-settings-module=lyria.settings --output-format=text
+          pylint lyria --load-plugins pylint_django --django-settings-module=lyria.settings --output-format=text
+          pylint ci_scripts --output-format=text
           pylint bucketActions --output-format=text
 
   build_docker_image:
@@ -79,7 +79,7 @@ jobs:
 
       - name: Stop dev server
         if: ${{ failure()}}
-        working-directory: ./lyria-dev
+        working-directory: ./ci_scripts
         run: |
           pip install boto3
           python stop_dev_server.py
@@ -96,7 +96,7 @@ jobs:
 
       - name: Get Dev Server IP
         id: get_dev_server_ip
-        working-directory: ./lyria-dev
+        working-directory: ./ci_scripts
         run: python get_dev_server_ip.py
 
       - name: Set environment variable for dev server IP

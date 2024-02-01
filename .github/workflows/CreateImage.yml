@@ -6,7 +6,7 @@ on:
     paths-ignore:
       - 'README.md'
       - 'bucketActions/**'
-      - 'lyria-dev/**'
+      - 'ci_scripts/**'
       - 'terraform/**'
        
     branches:
@@ -30,12 +30,12 @@ jobs:
         run: pip install boto3
 
       - name: Create AMI from instance 
-        working-directory: ./lyria-dev
+        working-directory: ./ci_scripts
         run: python create_ami.py
 
       - name: Stop dev server
         if: always()
-        working-directory: ./lyria-dev
+        working-directory: ./ci_scripts
         run: python stop_dev_server.py
     
   stop_dev_server:
@@ -51,5 +51,5 @@ jobs:
         run: pip install boto3
 
       - name: Stop dev server
-        working-directory: ./lyria-dev
+        working-directory: ./ci_scripts
         run: python stop_dev_server.py
