@@ -8,7 +8,10 @@ from player.views import index
 
 CLOUDFRONT_URL = settings.CLOUDFRONT_URL
 class TestIndexView(TestCase):
-    """Tests for the index view."""
+    """Tests for the index view
+    1. Tests that the song list, audio urls, and image urls are populated correctly.
+    2. Tests that the context contains the expected data.
+    """
 
     mock_s3_contents = {
             'Contents': [
