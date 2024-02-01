@@ -1,3 +1,5 @@
+""" This script waits for an instance to be in the 'ok' stat and then obtains the public IP """
+
 import os
 import boto3
 

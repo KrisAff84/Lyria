@@ -1,3 +1,8 @@
+""" This script creates an AMI from the instance with the given instance_id.
+    It first obtains the latest version of the AMI for the Lyria application and
+    increments it by 1 to create a new version.
+"""
+
 import os
 import boto3
 
