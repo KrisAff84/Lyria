@@ -61,7 +61,30 @@ jobs:
           pylint ci_scripts --output-format=text || true
           pylint bucketActions --output-format=text || true
 
+  unit_tests:
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: pip install -r requirements/ci-requirements.txt
+
+      - name: Run Unit Tests
+        run: python manage.py test player
+
+      - name: Stop dev server
+        if: ${{ failure()}}
+        working-directory: ./ci_scripts
+        run: python stop_dev_server.py
+
   build_docker_image:
+    needs: [pylint, unit_tests]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
