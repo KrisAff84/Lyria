@@ -26,21 +26,41 @@ permissions:
   pull-requests: read
 
 jobs:
-  build_docker_image:
-
+  start_dev_server:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install requirements
-        run: pip install -r requirements/ci-requirements.txt
+      - name: Install boto3
+        run: pip install boto3
 
       - name: Start Development Server
         id: start_dev_server
         working-directory: ./lyria-dev
         run: python start_dev_server.py
+
+  pylint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: pip install -r requirements/ci-requirements.txt
+
+      - name: Run Pylint
+        run: | 
+          pylint player --load-plugins pylint_django --output-format=text
+          pylint lyria --load-plugins pylint_django --output-format=text
+          pylint lyria-dev --output-format=text
+          pylint bucketActions --output-format=text
+
+  build_docker_image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Build Lyria Docker image
         run: |
@@ -58,17 +78,15 @@ jobs:
         run: docker push krisaff84/lyria:$(date +'%Y-%m-%d') && docker push krisaff84/lyria:latest
 
       - name: Stop dev server
-        id: stop_dev_server
         if: ${{ failure()}}
         working-directory: ./lyria-dev
-        run: python stop_dev_server.py
+        run: |
+          pip install boto3
+          python stop_dev_server.py
 
   pull_image_and_start_containers:
-
-    needs: build_docker_image
-
+    needs: [build_docker_image, start_dev_server]
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
