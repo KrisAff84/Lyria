@@ -31,7 +31,7 @@ variable "vpc_cidr" {
 
 variable "name_prefix" {
   description = "Naming prefix for all resources"
-  default     = "lyria-green"
+  default     = "lyria-blue"
 }
 
 ####################################################

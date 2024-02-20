@@ -9,7 +9,7 @@ terraform {
     bucket         = "lyria-terraform-state"
     encrypt        = true
     dynamodb_table = "lyria-state-locks"
-    key            = "green/terraform.tfstate"
+    key            = "blue/terraform.tfstate"
     region         = "us-east-2"
     profile        = "admin-profile"
   }

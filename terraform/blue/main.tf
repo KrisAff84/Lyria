@@ -21,9 +21,11 @@ data "aws_availability_zones" "available" {
 
 resource "aws_vpc" "main" {
   cidr_block = var.vpc_cidr
+  ipv6_netmask_length = 64
   tags = {
     Name = "${var.name_prefix}-vpc"
   }
+  
 
 }
 
@@ -474,32 +476,4 @@ resource "aws_iam_role" "asg_bucket_role" {
 resource "aws_iam_instance_profile" "asg_bucket_profile" {
   name = "${var.name_prefix}_instance_profile"
   role = aws_iam_role.asg_bucket_role.name
-}
-
-#############################################
-# Route53
-#############################################
-
-resource "aws_route53_record" "main" {
-  zone_id = "Z09206903VMHX9SR3PGQF"
-  name    = "meettheafflerbaughs.com"
-  type    = "A"
-
-  alias {
-    name                   = aws_lb.elb.dns_name
-    zone_id                = aws_lb.elb.zone_id
-    evaluate_target_health = true
-  }
-}
-
-resource "aws_route53_record" "misspelled" {
-  zone_id = "Z06032811HZJPQ3EPMZ6P"
-  name    = "meetheafflerbaughs.com"
-  type    = "A"
-
-  alias {
-    name                   = aws_lb.elb.dns_name
-    zone_id                = aws_lb.elb.zone_id
-    evaluate_target_health = true
-  }
 }
