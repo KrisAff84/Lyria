@@ -20,8 +20,7 @@ data "aws_availability_zones" "available" {
 ###########################################
 
 resource "aws_vpc" "main" {
-  cidr_block = var.vpc_cidr
-  ipv6_netmask_length = 64
+  ipv6_netmask_length = 0
   tags = {
     Name = "${var.name_prefix}-vpc"
   }
