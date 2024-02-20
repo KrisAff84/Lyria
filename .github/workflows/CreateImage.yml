@@ -8,6 +8,7 @@ on:
       - 'bucketActions/**'
       - 'ci_scripts/**'
       - 'terraform/**'
+      - '.gitignore'
        
     branches:
       - main
