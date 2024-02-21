@@ -20,37 +20,47 @@ data "aws_availability_zones" "available" {
 ###########################################
 
 resource "aws_vpc" "main" {
-  ipv6_netmask_length = 0
+  assign_generated_ipv6_cidr_block = true
+  cidr_block                       = var.vpc_cidr
   tags = {
     Name = "${var.name_prefix}-vpc"
   }
-  
-
 }
 
 ############# Public Subnets #############
 
 resource "aws_subnet" "public1" {
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = cidrsubnet(var.vpc_cidr, 4, 0)
-  availability_zone       = data.aws_availability_zones.available.names[0]
-  map_public_ip_on_launch = true
+  vpc_id                                         = aws_vpc.main.id
+  availability_zone                              = data.aws_availability_zones.available.names[0]
+  assign_ipv6_address_on_creation                = true
+  ipv6_native                                    = true
+  enable_resource_name_dns_aaaa_record_on_launch = true
+  enable_dns64                                   = true
+  ipv6_cidr_block                                = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 4, 0)
   tags = {
     Name = "${var.name_prefix}-public-1"
   }
 }
 resource "aws_subnet" "public2" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = cidrsubnet(var.vpc_cidr, 4, 1)
-  availability_zone = data.aws_availability_zones.available.names[1]
+  vpc_id                                         = aws_vpc.main.id
+  availability_zone                              = data.aws_availability_zones.available.names[1]
+  assign_ipv6_address_on_creation                = true
+  ipv6_native                                    = true
+  enable_resource_name_dns_aaaa_record_on_launch = true
+  enable_dns64                                   = true
+  ipv6_cidr_block                                = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 4, 1)
   tags = {
     Name = "${var.name_prefix}-public-2"
   }
 }
 resource "aws_subnet" "public3" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = cidrsubnet(var.vpc_cidr, 4, 2)
-  availability_zone = data.aws_availability_zones.available.names[2]
+  vpc_id                                         = aws_vpc.main.id
+  availability_zone                              = data.aws_availability_zones.available.names[2]
+  assign_ipv6_address_on_creation                = true
+  ipv6_native                                    = true
+  enable_resource_name_dns_aaaa_record_on_launch = true
+  enable_dns64                                   = true
+  ipv6_cidr_block                                = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 4, 2)
   tags = {
     Name = "${var.name_prefix}-public-3"
   }
@@ -62,6 +72,7 @@ resource "aws_subnet" "private1" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = cidrsubnet(var.vpc_cidr, 4, 7)
   availability_zone = data.aws_availability_zones.available.names[0]
+  ipv6_cidr_block   = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 4, 13)
   tags = {
     Name = "${var.name_prefix}-private-1"
   }
@@ -70,6 +81,7 @@ resource "aws_subnet" "private2" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = cidrsubnet(var.vpc_cidr, 4, 8)
   availability_zone = data.aws_availability_zones.available.names[1]
+  ipv6_cidr_block   = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 4, 14)
   tags = {
     Name = "${var.name_prefix}-private-2"
   }
@@ -78,6 +90,7 @@ resource "aws_subnet" "private3" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = cidrsubnet(var.vpc_cidr, 4, 9)
   availability_zone = data.aws_availability_zones.available.names[2]
+  ipv6_cidr_block   = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 4, 15)
   tags = {
     Name = "${var.name_prefix}-private-3"
   }
@@ -101,6 +114,10 @@ resource "aws_route_table" "public" {
   route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.gw.id
+  }
+  route {
+    ipv6_cidr_block = "::/0"
+    gateway_id      = aws_internet_gateway.gw.id
   }
   tags = {
     Name = "${var.name_prefix}-public-rt"
@@ -143,10 +160,6 @@ resource "aws_vpc_endpoint" "bucket_endpoint" {
 
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.main.id
-  # route {
-  #   cidr_block      = "0.0.0.0/0"
-  #   vpc_endpoint_id = aws_vpc_endpoint.bucket_endpoint.id
-  # }
   tags = {
     Name = "${var.name_prefix}-private-rt"
   }
@@ -242,6 +255,7 @@ resource "aws_autoscaling_policy" "main" {
 resource "aws_lb" "elb" {
   name            = "${var.name_prefix}-elb"
   security_groups = [aws_security_group.elb_sg.id]
+  ip_address_type = "dualstack"
   subnets = [
     aws_subnet.public1.id,
     aws_subnet.public2.id,
@@ -405,27 +419,33 @@ resource "aws_security_group" "elb_sg" {
   name        = "${var.name_prefix}_elb_sg"
   description = "Allow HTTP access from anywhere"
   vpc_id      = aws_vpc.main.id
-  ingress {
-    description = "Allow HTTP from anywhere"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  ingress {
-    description = "Allow HTTPS from anywhere"
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
+}
+resource "aws_security_group_rule" "allow_ipv6_http" {
+  type              = "ingress"
+  security_group_id = aws_security_group.elb_sg.id
+  description       = "Allow HTTP from anywhere ipv6"
+  ipv6_cidr_blocks  = ["::/0"]
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+}
+resource "aws_security_group_rule" "allow_ipv6_https" {
+  type              = "ingress"
+  security_group_id = aws_security_group.elb_sg.id
+  description       = "Allow HTTPS from anywhere ipv6"
+  ipv6_cidr_blocks  = ["::/0"]
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+}
+resource "aws_security_group_rule" "allow_ipv6" {
+  type              = "egress"
+  security_group_id = aws_security_group.elb_sg.id
+  description       = "Allow all traffic to anywhere ipv6"
+  ipv6_cidr_blocks  = ["::/0"]
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
 }
 
 #############################################

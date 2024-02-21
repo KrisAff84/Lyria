@@ -21,7 +21,7 @@ variable "secret_key" {
 
 variable "aws_region" {
   description = "AWS Region"
-  default     = "us-east-2"
+  default     = "us-east-1"
 }
 
 variable "vpc_cidr" {
