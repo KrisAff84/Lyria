@@ -14,7 +14,6 @@ variable "secret_key" {
   sensitive   = true
 }
 
-
 ####################################################
 #####    Network
 ####################################################
@@ -23,12 +22,10 @@ variable "aws_region" {
   description = "AWS Region"
   default     = "us-east-2"
 }
-
 variable "vpc_cidr" {
   description = "CIDR block for VPC"
   default     = "10.1.0.0/16"
 }
-
 variable "name_prefix" {
   description = "Naming prefix for all resources"
   default     = "lyria-green"
