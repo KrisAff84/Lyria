@@ -1,0 +1,40 @@
+{
+    "Subnets": [
+        {
+            "AvailabilityZone": "us-east-1b",
+            "AvailabilityZoneId": "use1-az2",
+            "AvailableIpAddressCount": 0,
+            "DefaultForAz": false,
+            "MapPublicIpOnLaunch": false,
+            "MapCustomerOwnedIpOnLaunch": false,
+            "State": "available",
+            "SubnetId": "subnet-0f082c26f92a31280",
+            "VpcId": "vpc-051a36f88ca4fc002",
+            "OwnerId": "835656321421",
+            "AssignIpv6AddressOnCreation": true,
+            "Ipv6CidrBlockAssociationSet": [
+                {
+                    "AssociationId": "subnet-cidr-assoc-0e673decebc545b5a",
+                    "Ipv6CidrBlock": "2600:1f10:4aac:4a10::/60",
+                    "Ipv6CidrBlockState": {
+                        "State": "associated"
+                    }
+                }
+            ],
+            "Tags": [
+                {
+                    "Key": "Name",
+                    "Value": "lyria-blue-public-2"
+                }
+            ],
+            "SubnetArn": "arn:aws:ec2:us-east-1:835656321421:subnet/subnet-0f082c26f92a31280",
+            "EnableDns64": true,
+            "Ipv6Native": true,
+            "PrivateDnsNameOptionsOnLaunch": {
+                "HostnameType": "resource-name",
+                "EnableResourceNameDnsARecord": false,
+                "EnableResourceNameDnsAAAARecord": true
+            }
+        }
+    ]
+}
