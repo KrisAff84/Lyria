@@ -69,28 +69,28 @@ resource "aws_subnet" "public3" {
 ############# Private Subnets #############
 
 resource "aws_subnet" "private1" {
-  vpc_id                          = aws_vpc.main.id
-  cidr_block                      = cidrsubnet(var.vpc_cidr, 4, 7)
-  availability_zone               = data.aws_availability_zones.available.names[0]
-  ipv6_cidr_block                 = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 13)
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = cidrsubnet(var.vpc_cidr, 4, 7)
+  availability_zone = data.aws_availability_zones.available.names[0]
+  ipv6_cidr_block   = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 13)
   tags = {
     Name = "${var.name_prefix}-private-1"
   }
 }
 resource "aws_subnet" "private2" {
-  vpc_id                          = aws_vpc.main.id
-  cidr_block                      = cidrsubnet(var.vpc_cidr, 4, 8)
-  availability_zone               = data.aws_availability_zones.available.names[1]
-  ipv6_cidr_block                 = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 14)
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = cidrsubnet(var.vpc_cidr, 4, 8)
+  availability_zone = data.aws_availability_zones.available.names[1]
+  ipv6_cidr_block   = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 14)
   tags = {
     Name = "${var.name_prefix}-private-2"
   }
 }
 resource "aws_subnet" "private3" {
-  vpc_id                          = aws_vpc.main.id
-  cidr_block                      = cidrsubnet(var.vpc_cidr, 4, 9)
-  availability_zone               = data.aws_availability_zones.available.names[2]
-  ipv6_cidr_block                 = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 15)
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = cidrsubnet(var.vpc_cidr, 4, 9)
+  availability_zone = data.aws_availability_zones.available.names[2]
+  ipv6_cidr_block   = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 15)
   tags = {
     Name = "${var.name_prefix}-private-3"
   }
