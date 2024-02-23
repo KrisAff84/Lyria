@@ -46,14 +46,6 @@ resource "aws_subnet" "public2" {
     Name = "${var.name_prefix}-public-2"
   }
 }
-resource "aws_subnet" "public3" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = cidrsubnet(var.vpc_cidr, 4, 2)
-  availability_zone = data.aws_availability_zones.available.names[2]
-  tags = {
-    Name = "${var.name_prefix}-public-3"
-  }
-}
 
 ############# Private Subnets #############
 
@@ -71,14 +63,6 @@ resource "aws_subnet" "private2" {
   availability_zone = data.aws_availability_zones.available.names[1]
   tags = {
     Name = "${var.name_prefix}-private-2"
-  }
-}
-resource "aws_subnet" "private3" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = cidrsubnet(var.vpc_cidr, 4, 9)
-  availability_zone = data.aws_availability_zones.available.names[2]
-  tags = {
-    Name = "${var.name_prefix}-private-3"
   }
 }
 
@@ -116,10 +100,6 @@ resource "aws_route_table_association" "public2" {
   subnet_id      = aws_subnet.public2.id
   route_table_id = aws_route_table.public.id
 }
-resource "aws_route_table_association" "public3" {
-  subnet_id      = aws_subnet.public3.id
-  route_table_id = aws_route_table.public.id
-}
 
 ###########################################
 # VPC Endpoint and Private Route Table
@@ -142,10 +122,6 @@ resource "aws_vpc_endpoint" "bucket_endpoint" {
 
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.main.id
-  # route {
-  #   cidr_block      = "0.0.0.0/0"
-  #   vpc_endpoint_id = aws_vpc_endpoint.bucket_endpoint.id
-  # }
   tags = {
     Name = "${var.name_prefix}-private-rt"
   }
@@ -159,10 +135,6 @@ resource "aws_route_table_association" "private1" {
 }
 resource "aws_route_table_association" "private2" {
   subnet_id      = aws_subnet.private2.id
-  route_table_id = aws_route_table.private.id
-}
-resource "aws_route_table_association" "private3" {
-  subnet_id      = aws_subnet.private3.id
   route_table_id = aws_route_table.private.id
 }
 
@@ -195,14 +167,13 @@ resource "aws_autoscaling_group" "asg" {
     id      = aws_launch_template.asg_lt.id
     version = aws_launch_template.asg_lt.latest_version
   }
-  max_size          = 3
+  max_size          = 2
   min_size          = 1
   health_check_type = "ELB"
   desired_capacity  = 1
   vpc_zone_identifier = [
     aws_subnet.private1.id,
-    aws_subnet.private2.id,
-    aws_subnet.private3.id
+    aws_subnet.private2.id
   ]
   instance_refresh {
     strategy = "Rolling"
@@ -243,8 +214,7 @@ resource "aws_lb" "elb" {
   security_groups = [aws_security_group.elb_sg.id]
   subnets = [
     aws_subnet.public1.id,
-    aws_subnet.public2.id,
-    aws_subnet.public3.id
+    aws_subnet.public2.id
   ]
   access_logs {
     bucket  = "lyria-logs"
