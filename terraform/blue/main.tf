@@ -33,10 +33,10 @@ resource "aws_subnet" "public1" {
   vpc_id                                         = aws_vpc.main.id
   availability_zone                              = data.aws_availability_zones.available.names[0]
   assign_ipv6_address_on_creation                = true
-  ipv6_native                                    = true
   enable_resource_name_dns_aaaa_record_on_launch = true
   enable_dns64                                   = true
-  ipv6_cidr_block                                = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 4, 0)
+  ipv6_cidr_block                                = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 0)
+  cidr_block                                     = cidrsubnet(var.vpc_cidr, 4, 0)
   tags = {
     Name = "${var.name_prefix}-public-1"
   }
@@ -45,10 +45,10 @@ resource "aws_subnet" "public2" {
   vpc_id                                         = aws_vpc.main.id
   availability_zone                              = data.aws_availability_zones.available.names[1]
   assign_ipv6_address_on_creation                = true
-  ipv6_native                                    = true
   enable_resource_name_dns_aaaa_record_on_launch = true
   enable_dns64                                   = true
-  ipv6_cidr_block                                = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 4, 1)
+  ipv6_cidr_block                                = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 1)
+  cidr_block                                     = cidrsubnet(var.vpc_cidr, 4, 1)
   tags = {
     Name = "${var.name_prefix}-public-2"
   }
@@ -57,10 +57,10 @@ resource "aws_subnet" "public3" {
   vpc_id                                         = aws_vpc.main.id
   availability_zone                              = data.aws_availability_zones.available.names[2]
   assign_ipv6_address_on_creation                = true
-  ipv6_native                                    = true
   enable_resource_name_dns_aaaa_record_on_launch = true
   enable_dns64                                   = true
-  ipv6_cidr_block                                = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 4, 2)
+  ipv6_cidr_block                                = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 2)
+  cidr_block                                     = cidrsubnet(var.vpc_cidr, 4, 2)
   tags = {
     Name = "${var.name_prefix}-public-3"
   }
@@ -69,28 +69,28 @@ resource "aws_subnet" "public3" {
 ############# Private Subnets #############
 
 resource "aws_subnet" "private1" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = cidrsubnet(var.vpc_cidr, 4, 7)
-  availability_zone = data.aws_availability_zones.available.names[0]
-  ipv6_cidr_block   = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 4, 13)
+  vpc_id                          = aws_vpc.main.id
+  cidr_block                      = cidrsubnet(var.vpc_cidr, 4, 7)
+  availability_zone               = data.aws_availability_zones.available.names[0]
+  ipv6_cidr_block                 = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 13)
   tags = {
     Name = "${var.name_prefix}-private-1"
   }
 }
 resource "aws_subnet" "private2" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = cidrsubnet(var.vpc_cidr, 4, 8)
-  availability_zone = data.aws_availability_zones.available.names[1]
-  ipv6_cidr_block   = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 4, 14)
+  vpc_id                          = aws_vpc.main.id
+  cidr_block                      = cidrsubnet(var.vpc_cidr, 4, 8)
+  availability_zone               = data.aws_availability_zones.available.names[1]
+  ipv6_cidr_block                 = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 14)
   tags = {
     Name = "${var.name_prefix}-private-2"
   }
 }
 resource "aws_subnet" "private3" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = cidrsubnet(var.vpc_cidr, 4, 9)
-  availability_zone = data.aws_availability_zones.available.names[2]
-  ipv6_cidr_block   = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 4, 15)
+  vpc_id                          = aws_vpc.main.id
+  cidr_block                      = cidrsubnet(var.vpc_cidr, 4, 9)
+  availability_zone               = data.aws_availability_zones.available.names[2]
+  ipv6_cidr_block                 = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 15)
   tags = {
     Name = "${var.name_prefix}-private-3"
   }
@@ -285,21 +285,21 @@ resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.elb.arn
   port              = 80
   protocol          = "HTTP"
-  default_action {
-    type = "redirect"
-    redirect {
-      protocol    = "HTTPS"
-      port        = "443"
-      status_code = "HTTP_301"
-    }
-  }
-}
-resource "aws_lb_listener" "https" {
-  load_balancer_arn = aws_lb.elb.arn
-  port              = 443
-  protocol          = "HTTPS"
-  ssl_policy        = var.ssl_policy
-  certificate_arn   = var.certificate_arn
+  #   default_action {
+  #     type = "redirect"
+  #     redirect {
+  #       protocol    = "HTTPS"
+  #       port        = "443"
+  #       status_code = "HTTP_301"
+  #     }
+  #   }
+  # }
+  # resource "aws_lb_listener" "https" {
+  #   load_balancer_arn = aws_lb.elb.arn
+  #   port              = 443
+  #   protocol          = "HTTPS"
+  #   ssl_policy        = var.ssl_policy
+  #   certificate_arn   = var.certificate_arn
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.lb_tg.arn
