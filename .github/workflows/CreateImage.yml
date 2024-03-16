@@ -16,7 +16,7 @@ on:
 env:
   AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
   AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-  DEV_INSTANCE_ID: 'i-0a196b4cdcbc3ed7e'
+  STAGING_INSTANCE_ID: 'i-0a196b4cdcbc3ed7e'
 
 jobs:
   create_image:
@@ -34,12 +34,12 @@ jobs:
         working-directory: ./ci_scripts
         run: python create_ami.py
 
-      - name: Stop dev server
+      - name: Stop Staging Server
         if: always()
         working-directory: ./ci_scripts
-        run: python stop_dev_server.py
+        run: python stop_staging_server.py
     
-  stop_dev_server:
+  stop_staging_server:
     # this job will only run if the PR has been closed without being merged
     if: github.event.pull_request.merged == false
     runs-on: ubuntu-latest
@@ -51,6 +51,6 @@ jobs:
       - name: Install boto3
         run: pip install boto3
 
-      - name: Stop dev server
+      - name: Stop Staging Server
         working-directory: ./ci_scripts
-        run: python stop_dev_server.py
+        run: python stop_staging_server.py

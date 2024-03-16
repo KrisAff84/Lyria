@@ -20,14 +20,14 @@ env:
   DEBUG: 'False'
   SONG_ORDER: '5,3,1,0,2,4'
   SECRET_KEY: ${{secrets.SECRET_KEY}}
-  DEV_INSTANCE_ID: 'i-0a196b4cdcbc3ed7e'
+  STAGING_INSTANCE_ID: 'i-0a196b4cdcbc3ed7e'
   
 permissions:
   contents: read
   pull-requests: read
 
 jobs:
-  start_dev_server:
+  start_staging_server:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -36,10 +36,10 @@ jobs:
       - name: Install boto3
         run: pip install boto3
 
-      - name: Start Development Server
-        id: start_dev_server
+      - name: Start Staging Server
+        id: start_staging_server
         working-directory: ./ci_scripts
-        run: python start_dev_server.py
+        run: python start_staging_server.py
 
   pylint:
     runs-on: ubuntu-latest
@@ -79,10 +79,10 @@ jobs:
       - name: Run Unit Tests
         run: python manage.py test player
 
-      - name: Stop dev server
+      - name: Stop Staging Server
         if: ${{ failure()}}
         working-directory: ./ci_scripts
-        run: python stop_dev_server.py
+        run: python stop_staging_server.py
 
   build_docker_image:
     needs: [pylint, unit_tests]
@@ -106,15 +106,15 @@ jobs:
       - name: Push image to Docker Hub
         run: docker push krisaff84/lyria:$(date +'%Y-%m-%d') && docker push krisaff84/lyria:latest
 
-      - name: Stop dev server
+      - name: Stop Staging Server
         if: ${{ failure()}}
         working-directory: ./ci_scripts
         run: |
           pip install boto3
-          python stop_dev_server.py
+          python stop_staging_server.py
 
   pull_image_and_start_containers:
-    needs: [build_docker_image, start_dev_server]
+    needs: [build_docker_image, start_staging_server]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -123,18 +123,18 @@ jobs:
       - name: Install boto3
         run: pip install boto3
 
-      - name: Get Dev Server IP
-        id: get_dev_server_ip
+      - name: Get Stagint Server IP
+        id: get_staging_server_ip
         working-directory: ./ci_scripts
-        run: python get_dev_server_ip.py
+        run: python get_staging_server_ip.py
 
-      - name: Set environment variable for dev server IP
-        run: echo "DEV_SERVER_IP=${{ steps.get_dev_server_ip.outputs.public_ip }}" >> $GITHUB_ENV
+      - name: Set environment variable for staging server IP
+        run: echo "STAGING_SERVER_IP=${{ steps.get_staging_server_ip.outputs.public_ip }}" >> $GITHUB_ENV
 
       - name: Pull Docker image and start containers on instance
         uses: appleboy/ssh-action@master
         with:
-          host: ${{env.DEV_SERVER_IP}}
+          host: ${{env.STAGING_SERVER_IP}}
           username: ubuntu
           key: ${{secrets.LYRIA_PRIVATE_KEY}}
           script: |
@@ -149,4 +149,8 @@ jobs:
             export SECRET_KEY=${{env.SECRET_KEY}}
             docker compose up -d
             unset SECRET_KEY
-
+      
+      - name: Stop Staging Server
+        if: ${{ failure()}}
+        working-directory: ./ci_scripts
+        run: python stop_staging_server.py
