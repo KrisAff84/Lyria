@@ -6,7 +6,7 @@ import boto3
 
 access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
 secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
-instance_id = os.environ.get('DEV_INSTANCE_ID')
+instance_id = os.environ.get('STAGING_INSTANCE_ID')
 
 ec2 = boto3.client(
     'ec2',
@@ -20,4 +20,4 @@ response = ec2.stop_instances(
         instance_id,
     ]
 )
-print("Dev Server Stopped")
+print("Staging Server Stopped")
