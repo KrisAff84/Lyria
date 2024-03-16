@@ -123,7 +123,7 @@ jobs:
       - name: Install boto3
         run: pip install boto3
 
-      - name: Get Stagint Server IP
+      - name: Get Staging Server IP
         id: get_staging_server_ip
         working-directory: ./ci_scripts
         run: python get_staging_server_ip.py
