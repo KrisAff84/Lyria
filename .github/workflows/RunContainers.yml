@@ -112,7 +112,7 @@ jobs:
         run: |
           pip install boto3
           python stop_staging_server.py
-
+  
   pull_image_and_start_containers:
     needs: [build_docker_image, start_staging_server]
     runs-on: ubuntu-latest
@@ -130,8 +130,17 @@ jobs:
 
       - name: Set environment variable for staging server IP
         run: echo "STAGING_SERVER_IP=${{ steps.get_staging_server_ip.outputs.public_ip }}" >> $GITHUB_ENV
+      
+      - name: Copy Files to Staging Server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{env.STAGING_SERVER_IP}}
+          username: ubuntu
+          key: ${{secrets.LYRIA_PRIVATE_KEY}}
+          source: 'compose.yml, nginx.conf'
+          target: '/home/ubuntu'
 
-      - name: Pull Docker image and start containers on instance
+      - name: Pull Docker Image and Start Containers on Staging Server
         uses: appleboy/ssh-action@master
         with:
           host: ${{env.STAGING_SERVER_IP}}
