@@ -138,6 +138,7 @@ jobs:
           username: ubuntu
           key: ${{secrets.LYRIA_PRIVATE_KEY}}
           script: |
+            export SECRET_KEY=${{env.SECRET_KEY}}
             docker compose down
             docker prune -f
 
@@ -163,7 +164,6 @@ jobs:
             export CLOUDFRONT_URL=${{env.CLOUDFRONT_URL}}
             export DEBUG=${{env.DEBUG}}
             export SONG_ORDER=${{env.SONG_ORDER}}
-            export SECRET_KEY=${{env.SECRET_KEY}}
             docker compose up -d
             unset SECRET_KEY
       

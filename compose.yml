@@ -3,8 +3,14 @@ services:
     container_name: app
     image: krisaff84/lyria:latest
 
-    env_file:
-      - .env
+    environment:
+      AWS_STORAGE_BUCKET_NAME: ${AWS_STORAGE_BUCKET_NAME}
+      AWS_S3_REGION_NAME: ${AWS_S3_REGION_NAME}
+      CLOUDFRONT_URL: ${CLOUDFRONT_URL}
+      DEBUG: ${DEBUG}
+      SONG_ORDER: ${SONG_ORDER}
+      SECRET_KEY: ${SECRET_KEY}
+      
     networks:
       - backend
     restart: always
