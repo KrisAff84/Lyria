@@ -143,6 +143,7 @@ jobs:
           username: ubuntu
           key: ${{secrets.LYRIA_PRIVATE_KEY}}
           script: |
+            touch .env
             sudo docker compose down
             sudo docker system prune --all --force
 
