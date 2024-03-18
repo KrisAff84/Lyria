@@ -5,6 +5,7 @@ services:
 
     env_file:
       - .env
+      
     networks:
       - backend
     restart: always
