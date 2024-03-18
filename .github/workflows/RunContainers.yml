@@ -164,12 +164,7 @@ jobs:
           host: ${{env.STAGING_SERVER_IP}}
           username: ubuntu
           key: ${{secrets.LYRIA_PRIVATE_KEY}}
-          envs: AWS_STORAGE_BUCKET_NAME,
-                AWS_S3_REGION_NAME,
-                CLOUDFRONT_URL,
-                DEBUG,
-                SONG_ORDER,
-                SECRET_KEY
+          envs: AWS_STORAGE_BUCKET_NAME,AWS_S3_REGION_NAME,CLOUDFRONT_URL,DEBUG,SONG_ORDER,SECRET_KEY
           script: |
             sudo apt update && sudo apt upgrade -y
             export AWS_STORAGE_BUCKET_NAME=$AWS_STORAGE_BUCKET_NAME
