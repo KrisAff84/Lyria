@@ -36,10 +36,10 @@ def index(request):
         title_keys.append(response['Contents'][idx]['Key'].split('/')[1])
         idx += 1
         # puts path to complete audio file object urls into audio_urls list
-        audio_urls.append(response['Contents'][idx]['Key'])
+        audio_urls.append(cloudfront_url + response['Contents'][idx]['Key'])
         idx += 1
         # puts path to complete image object urls into image_urls list
-        image_urls.append(cloudfront_url + response['Contents'][idx]['Key'])
+        image_urls.append(response['Contents'][idx]['Key'])
         idx += 1
 
 
