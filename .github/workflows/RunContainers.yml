@@ -94,7 +94,8 @@ jobs:
       - name: Build Lyria Docker image
         run: |
           DATE=$(date +'%Y-%m-%d')
-          docker build --tag krisaff84/lyria:${DATE} \
+          docker build --no-cache \
+                       --tag krisaff84/lyria:${DATE} \
                        --tag krisaff84/lyria:latest .
     
       - name: Log in to Docker Hub
