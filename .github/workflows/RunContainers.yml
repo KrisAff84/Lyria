@@ -172,12 +172,12 @@ jobs:
                 SECRET_KEY
           script: |
             sudo apt update && sudo apt upgrade -y
-            export AWS_STORAGE_BUCKET_NAME=${AWS_STORAGE_BUCKET_NAME}
-            export AWS_S3_REGION_NAME=${AWS_S3_REGION_NAME}
-            export CLOUDFRONT_URL=${CLOUDFRONT_URL}
-            export DEBUG=${DEBUG}
-            export SONG_ORDER=${SONG_ORDER}
-            export SECRET_KEY=${SECRET_KEY}
+            export AWS_STORAGE_BUCKET_NAME=$AWS_STORAGE_BUCKET_NAME
+            export AWS_S3_REGION_NAME=$AWS_S3_REGION_NAME
+            export CLOUDFRONT_URL=$CLOUDFRONT_URL
+            export DEBUG=$DEBUG
+            export SONG_ORDER=$SONG_ORDER
+            export SECRET_KEY=$SECRET_KEY
             sudo docker compose up -d
             unset SECRET_KEY
       
