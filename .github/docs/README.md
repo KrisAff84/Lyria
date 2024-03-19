@@ -14,16 +14,18 @@ This music player was built using Django. In addition to the actual Django proje
     - workflows
         - RunContainers.yml
         - CreateImage.yml
+    - ci_scripts
+        - create_ami.py
+        - create_env.py
+        - get_staging_server_ip.py
+        - start_staging_server.py
+        - stop_staging_server.py 
+    - docs
+        - README.md 
 - bucketActions
     - addSong.py
     - listObjectKeys.py
     - replaceFile.py
-- ci_scripts
-    - create_ami.py
-    - create_env.py
-    - get_staging_server_ip.py
-    - start_staging_server.py
-    - stop_staging_server.py  
 - lyria
     - __init__.py
     - asgi.py
@@ -61,10 +63,6 @@ This music player was built using Django. In addition to the actual Django proje
         - providers.tf
         - variables.tf
     - README.md
-    - main.tf
-    - outputs.tf
-    - providers.tf
-    - variables.tf
 - manage.py
 - requirements.txt
 - gunicorn.conf.py
@@ -73,7 +71,6 @@ This music player was built using Django. In addition to the actual Django proje
 - .dockerignore
 - nginx.conf
 - .gitignore
-- README.md
 
 ## .env File
 For local development, an _.env_ file must be included in the root directory with the following environment variables:
