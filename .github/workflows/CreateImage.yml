@@ -6,7 +6,6 @@ on:
     paths-ignore:
       - 'README.md'
       - 'bucketActions/**'
-      - 'ci_scripts/**'
       - 'terraform/**'
       - '.gitignore'
        
@@ -31,12 +30,12 @@ jobs:
         run: pip install boto3
 
       - name: Create AMI from instance 
-        working-directory: ./ci_scripts
+        working-directory: .github/ci_scripts
         run: python create_ami.py
 
       - name: Stop Staging Server
         if: always()
-        working-directory: ./ci_scripts
+        working-directory: .github/ci_scripts
         run: python stop_staging_server.py
     
   stop_staging_server:
@@ -52,5 +51,5 @@ jobs:
         run: pip install boto3
 
       - name: Stop Staging Server
-        working-directory: ./ci_scripts
+        working-directory: .github/ci_scripts
         run: python stop_staging_server.py

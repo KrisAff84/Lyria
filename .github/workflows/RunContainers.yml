@@ -4,7 +4,6 @@ on:
     paths-ignore:
       - 'README.md'
       - 'bucketActions/**'
-      - 'ci_scripts/**'
       - 'terraform/**'
       - '.gitignore'
  
@@ -38,7 +37,7 @@ jobs:
 
       - name: Start Staging Server
         id: start_staging_server
-        working-directory: ./ci_scripts
+        working-directory: .github/ci_scripts
         run: python start_staging_server.py
 
   pylint:
@@ -81,7 +80,7 @@ jobs:
 
       - name: Stop Staging Server
         if: ${{ failure()}}
-        working-directory: ./ci_scripts
+        working-directory: .github/ci_scripts
         run: python stop_staging_server.py
 
   build_docker_image:
@@ -108,7 +107,7 @@ jobs:
 
       - name: Stop Staging Server
         if: ${{ failure()}}
-        working-directory: ./ci_scripts
+        working-directory: .github/ci_scripts
         run: |
           pip install boto3
           python stop_staging_server.py
@@ -125,14 +124,14 @@ jobs:
 
       - name: Get Staging Server IP
         id: get_staging_server_ip
-        working-directory: ./ci_scripts
+        working-directory: .github/ci_scripts
         run: python get_staging_server_ip.py
 
       - name: Set environment variable for staging server IP
         run: echo "STAGING_SERVER_IP=${{ steps.get_staging_server_ip.outputs.public_ip }}" >> $GITHUB_ENV
       
       - name: Create .env File
-        working-directory: ./ci_scripts
+        working-directory: .github/ci_scripts
         run: python create_env.py
         
       - name: Stop Previous Containers and Remove Images
@@ -168,5 +167,5 @@ jobs:
       
       - name: Stop Staging Server
         if: ${{ failure()}}
-        working-directory: ./ci_scripts
+        working-directory: .github/ci_scripts
         run: python stop_staging_server.py
