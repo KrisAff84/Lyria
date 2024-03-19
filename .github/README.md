@@ -20,8 +20,7 @@ This music player was built using Django. In addition to the actual Django proje
         - get_staging_server_ip.py
         - start_staging_server.py
         - stop_staging_server.py 
-    - docs
-        - README.md 
+    - README.md 
 - bucketActions
     - addSong.py
     - listObjectKeys.py
@@ -64,11 +63,10 @@ This music player was built using Django. In addition to the actual Django proje
         - variables.tf
     - README.md
 - manage.py
-- requirements.txt
-- gunicorn.conf.py
+- .dockerignore
 - Dockerfile
 - compose.yml
-- .dockerignore
+- gunicorn.conf.py
 - nginx.conf
 - .gitignore
 
@@ -162,3 +160,4 @@ I have not documented this entire project, but I do a few articles documenting k
 
 [Broad Overview of Entire Project](https://medium.com/towards-aws/a-convergence-of-devops-tools-leveraging-django-docker-terraform-and-aws-to-build-a-custom-902733aaed8f)
 
+[GitHub Actions Pipeline](https://medium.com/devops-dev/automate-your-workflow-a-guide-to-ci-cd-with-github-actions-3f395d60ba69)
