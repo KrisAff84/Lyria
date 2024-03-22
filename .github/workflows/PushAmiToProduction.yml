@@ -25,6 +25,12 @@ jobs:
       - name: Create New Branch
         run: git checkout -b update_production_ami
       
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-2
+          role-to-assume: arn:aws:iam::835656321421:role/lyria_terraform_role
+
       - name: Set Up Terraform
         uses: hashicorp/setup-terraform@v3
         with:
@@ -52,18 +58,12 @@ jobs:
 
       - name: Terraform Init and Format
         working-directory: terraform/${{ env.DEPLOYMENT_ENVIRONMENT }}
-        env:
-          AWS_ACCESS_KEY_ID: ${{ env.TF_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ env.TF_AWS_SECRET_ACCESS_KEY }}
         run: |
           terraform init
           terraform fmt
 
       - name: Terraform Plan
         working-directory: terraform/${{ env.DEPLOYMENT_ENVIRONMENT }}
-        env:
-          AWS_ACCESS_KEY_ID: ${{ env.TF_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ env.TF_AWS_SECRET_ACCESS_KEY }}
         run: |
           terraform plan -out=tfplan
 
