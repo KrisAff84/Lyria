@@ -28,6 +28,4 @@ jobs:
       - name: Deregister AMI
         working-directory: .github/ci_scripts
         run: python deregister_ami.py ${{ github.event.inputs.ami_version }}
-                  
-
-
+               
