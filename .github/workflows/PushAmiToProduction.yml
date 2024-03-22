@@ -1,0 +1,118 @@
+name: Push Most Recent AMI to Production
+on:
+  workflow_dispatch:
+    inputs:
+      deployment_environment:
+        description: 'The environment to deploy to'
+        required: true
+        default: 'green'
+        type: choice
+        options:
+          - 'green'
+          - 'blue'
+env:
+  TF_AWS_ACCESS_KEY_ID: ${{ secrets.TF_AWS_ACCESS_KEY_ID }}
+  TF_AWS_SECRET_ACCESS_KEY: ${{ secrets.TF_AWS_SECRET_ACCESS_KEY }}
+  DEPLOYMENT_ENVIRONMENT: ${{ github.event.inputs.deployment_environment }}               
+
+jobs:
+  push_ami:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Create New Branch
+        run: git checkout -b update_production_ami
+      
+      - name: Set Up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7.0"
+
+      - name: Install Boto3
+        run: pip install boto3
+
+      - name: Get Line Number of AMI Variable
+        id: get_line_number
+        working-directory: terraform/${{ env.DEPLOYMENT_ENVIRONMENT }}
+        run: |
+          export LINE_NUMBER=$(grep -n ami_main variables.tf | cut -d ':' -f1)
+          let LINE_NUMBER=LINE_NUMBER+1
+          echo "AMI_LINE_NUMBER=$LINE_NUMBER" >> GITHUB_ENV
+          echo $LINE_NUMBER
+
+      - name: Replace AMI in Terraform
+        id: replace_ami
+        working-directory: .github/ci_scripts
+        env: 
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID}}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
+        run: python replace_ami.py ${{ env.DEPLOYMENT_ENVIRONMENT }}
+
+      - name: Terraform Init and Format
+        working-directory: terraform/${{ env.DEPLOYMENT_ENVIRONMENT }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ env.TF_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.TF_AWS_SECRET_ACCESS_KEY }}
+        run: |
+          terraform init
+          terraform fmt
+
+      - name: Terraform Plan
+        working-directory: terraform/${{ env.DEPLOYMENT_ENVIRONMENT }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ env.TF_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.TF_AWS_SECRET_ACCESS_KEY }}
+        run: |
+          terraform plan -out=tfplan
+
+      - name: Manual Approval
+        uses: trstringer/manual-approval@v1
+        timeout-minutes: 60
+        with:
+          secret: ${{ secrets.GITHUB_TOKEN }}
+          approvers: KrisAff84
+          minimum-approvals: 1
+          issue-title: Approve new AMI ID for deployment ${{ steps.replace_ami.outputs.latest_ami_id }}
+          issue-body: |
+            Please review and approve the Terraform plan from the link below.
+
+            Once approved, the new AMI will pushed to production in the ${{ env.DEPLOYMENT_ENVIRONMENT }} environment.
+
+      # - name: Terraform Apply
+      #   if: ${{ !env.ACT }}
+      #   working-directory: terraform/${{ env.DEPLOYMENT_ENVIRONMENT }}
+      #   env:
+      #     AWS_ACCESS_KEY_ID: ${{ env.TF_AWS_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ env.TF_AWS_SECRET_ACCESS_KEY }}
+      #   run: terraform apply -auto-approve tfplan
+      
+      # - name: Add, Commit, and Push Changes to variables.tf
+      #   if: ${{ !env.ACT }}
+      #   run: |
+      #     git add terraform/${{ env.DEPLOYMENT_ENVIRONMENT }}/variables.tf
+      #     git commit -m "Update AMI to version ${{ steps.replace_ami.outputs.latest_ami_version }} in variables.tf"
+      #     git push origin update_production_ami
+
+      # - name: Create Pull Request
+      #   if: ${{ !env.ACT }}
+      #   uses: actions/github-script@v7
+      #   with:
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     script: |
+      #       const response = await github.pulls.create({
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         title: 'Update AMI to version ${{ steps.replace_ami.outputs.latest_ami_version }} in variables.tf',
+      #         head: 'update_production_ami',
+      #         base: 'main',
+      #         body: 'This PR updates the AMI in variables.tf to to AMI ID ${{ steps.replace_ami.outputs.latest_ami_id }}.'
+      #       })
+      #       console.log(response.data.html_url)
+        
+            
+
+
+
+

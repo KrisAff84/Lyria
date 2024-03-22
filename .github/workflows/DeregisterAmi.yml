@@ -1,33 +1,31 @@
 name: Deregister AMI
 on:
-    workflow_dispatch:
-        inputs:
-            ami_version:
-                description: 'Version of Lyria AMI to deregister'
-                required: true
-                type: choice
-                options:
-                    - oldest
-                    - latest
+  workflow_dispatch:
+    inputs:
+      ami_version:
+        description: 'Version of Lyria AMI to deregister'
+        required: true
+        type: choice
+        options:
+          - oldest
+          - latest
 env:
-    AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-    AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    AWS_REGION: 'us-east-2'
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_REGION: 'us-east-2'
 
 
 jobs:
-    deregister-ami:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout Code
-              uses: actions/checkout@v4
+  deregister-ami:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-            - name: Install boto3
-              run: pip install boto3
+      - name: Install boto3
+        run: pip install boto3
 
-            - name: Deregister AMI
-              working-directory: .github/ci_scripts
-              run: python deregister_ami.py ${{ github.event.inputs.ami_version }}
-                  
-
-
+      - name: Deregister AMI
+        working-directory: .github/ci_scripts
+        run: python deregister_ami.py ${{ github.event.inputs.ami_version }}
+               

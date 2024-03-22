@@ -3,7 +3,7 @@
 #####################################
 
 provider "aws" {
-  profile = "admin-profile"
+  # profile = "admin-profile"
   region  = var.aws_region
 }
 
