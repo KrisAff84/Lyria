@@ -140,6 +140,7 @@ jobs:
           host: ${{env.STAGING_SERVER_IP}}
           username: ubuntu
           key: ${{secrets.LYRIA_PRIVATE_KEY}}
+          protocol: 'tcp6'
           script: |
             touch .env
             sudo docker compose down
@@ -160,6 +161,7 @@ jobs:
           host: ${{env.STAGING_SERVER_IP}}
           username: ubuntu
           key: ${{secrets.LYRIA_PRIVATE_KEY}}
+          protocol: 'tcp6'
           script: |
             sudo apt update && sudo apt upgrade -y
             sudo docker compose up -d
