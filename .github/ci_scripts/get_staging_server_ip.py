@@ -5,7 +5,7 @@ import boto3
 
 access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
 secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
-instance_id = os.environ.get('STAGING_INSTANCE_ID')
+instance_id = 'i-01ee3032740fc3229'
 
 ec2 = boto3.client(
     'ec2',
@@ -19,8 +19,14 @@ waiter.wait(InstanceIds=[instance_id])
 
 response = ec2.describe_instances(InstanceIds=[instance_id])
 
-public_ip = response['Reservations'][0]['Instances'][0]['PublicIpAddress']
+if 'PublicIpAddress' in response['Reservations'][0]['Instances'][0]:
+    public_ip = response['Reservations'][0]['Instances'][0]['PublicIpAddress']
+    print(f"Lyria Staging Instance is now running at: {public_ip}")
+    with open(os.environ['GITHUB_OUTPUT'], 'a') as output_file:
+        output_file.write(f'public_ip={public_ip}\n')
+else:
+    ipv6_address = response['Reservations'][0]['Instances'][0]['NetworkInterfaces'][0]['Ipv6Addresses'][0]['Ipv6Address']
+    print(f"Lyria Staging Instance is now running at: {ipv6_address}")
+    with open(os.environ['GITHUB_OUTPUT'], 'a') as output_file:
+        output_file.write(f'public_ip={ipv6_address}\n')
 
-print(f"Lyria Staging Instance is now running at: {public_ip}")
-with open(os.environ['GITHUB_OUTPUT'], 'a') as output_file:
-    output_file.write(f'public_ip={public_ip}\n')
