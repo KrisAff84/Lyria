@@ -36,4 +36,8 @@ services:
 
 networks: 
   frontend:
+    enable_ipv6: true
+    ipam:
+      config:
+        - subnet: 2001:0DB8::/112
   backend:
