@@ -1,0 +1,77 @@
+
+
+- hosts: staging
+  become: no
+  pre_tasks:
+
+    - name: Install Python 3.11
+      apt:
+        name: python3.11
+        state: present
+
+    - name: Install Python3-venv
+      apt:
+        name: python3.11-venv
+        state: present
+
+    - name: Create Virtual Environment
+      command: python3.11 -m venv /home/ubuntu/Lyria/.venv
+
+    - name: Activate Virtual Environment
+      command: /home/ubuntu/Lyria/.venv/bin/activate
+      args:
+        executable: /bin/bash
+        creates: /home/ubuntu/Lyria/.venv/bin/activate
+
+    - name: Install Python3-pip
+      apt:
+        name: python3-pip
+        state: present
+
+- hosts: staging
+  become: no
+  tasks:
+
+    - name: Synchronize Files and Directories
+      ansible.posix.synchronize:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}" 
+        mode: push
+        recursive: yes
+        rsync_opts:
+          - "--exclude=__pycache__"
+      with_items:
+          - { src: '../lyria/', dest: '/home/ubuntu/Lyria/lyria' }
+          - { src: '../player/', dest: '/home/ubuntu/Lyria/player' }
+          - { src: '../requirements/server-requirements.txt', dest: '/home/ubuntu/Lyria/requirements.txt' }
+          - { src: '../db.sqlite3', dest: '/home/ubuntu/Lyria/db.sqlite3' }
+          - { src: '../manage.py', dest: '/home/ubuntu/Lyria/manage.py' }
+          - { src: '../gunicorn.conf.py', dest: '/home/ubuntu/Lyria/gunicorn.conf.py' }
+          - { src: '../gunicorn.service', dest: '/etc/systemd/system/gunicorn.service' }
+          - { src: '../nginx.conf', dest: '/etc/nginx/nginx.conf'}
+          - { src: '../.server_env', dest: '/home/ubuntu/Lyria/.env'}
+    
+    - name: Install Requirements
+      pip: 
+        requirements: /home/ubuntu/Lyria/requirements.txt
+        virtualenv: /home/ubuntu/Lyria/.venv
+
+
+
+    # - name: Copy Files
+    #   copy:
+    #     src: "{{ item.src }}"
+    #     dest: "{{ item.dest }}"
+    #   with_items:
+    #     - { src: '../lyria/', dest: '/home/ubuntu/Lyria/lyria' }
+    #     - { src: '../player/', dest: '/home/ubuntu/Lyria/player' }
+
+    # - name: Copy files to staging server
+    #   copy:
+    #     src: ../lyria
+    #     dest: /home/ubuntu/Lyria/lyria
+
+    # - name: Copy files to staging server
+    #   copy:
+    #     src: ../player
+    #     dest: /home/ubuntu/Lyria/player

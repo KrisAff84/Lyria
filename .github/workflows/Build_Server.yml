@@ -1,4 +1,4 @@
-name: Run Containers
+name: Build Server
 on: 
   pull_request:
     paths-ignore:
@@ -20,6 +20,7 @@ env:
   SONG_ORDER: '5,3,1,0,2,4'
   SECRET_KEY: ${{secrets.SECRET_KEY}}
   STAGING_INSTANCE_ID: 'i-0a196b4cdcbc3ed7e'
+  SSH_KEY: ${{secrets.LYRIA_PRIVATE_KEY}}
   
 permissions:
   contents: read
@@ -83,27 +84,33 @@ jobs:
         working-directory: .github/ci_scripts
         run: python stop_staging_server.py
 
-  build_docker_image:
-    needs: [pylint, unit_tests]
+  copy_files_to_staging_server:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build Lyria Docker image
-        run: |
-          DATE=$(date +'%Y-%m-%d')
-          docker build --tag krisaff84/lyria:${DATE} \
-                       --tag krisaff84/lyria:latest .
-    
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
+      - name: Install Python 3.11
+        uses: actions/setup-python@v5
         with:
-          username: ${{secrets.DOCKER_USERNAME}}
-          password: ${{secrets.DOCKER_PASSWORD}}
+          python-version: '3.11'
 
-      - name: Push image to Docker Hub
-        run: docker push krisaff84/lyria:$(date +'%Y-%m-%d') && docker push krisaff84/lyria:latest
+      - name: Install Ansible
+        run: |
+          sudo apt-add-repository ppa:ansible/ansible -y
+          sudo apt update -y
+          sudo apt install ansible -y
+
+      - name: Get Staging Server IP
+        working-directory: .github/ci_scripts
+        run: python get_staging_server_ip.py
+
+      - name: Set environment variable for staging server IP
+        run: echo "STAGING_SERVER_IP=${{ steps.get_staging_server_ip.outputs.public_ip }}" >> $GITHUB_ENV
+
+      - name: Create Ansible Inventory and .cfg
+        working-directory: .github/ci_scripts
+        run: python create_ansible_files.py
 
       - name: Stop Staging Server
         if: ${{ failure()}}

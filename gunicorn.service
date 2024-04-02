@@ -1,0 +1,12 @@
+[Unit]
+Description=Starts the Lyria application
+After=network.target
+
+[Service]
+User=ubuntu
+Group=www-data
+WorkingDirectory=/home/ubuntu/Lyria
+ExecStart=gunicorn -c gunicorn.conf.py lyria.wsgi:application
+
+[Install]
+WantedBy=multi-user.target

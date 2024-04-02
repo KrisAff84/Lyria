@@ -36,8 +36,8 @@ AWS_S3_REGION_NAME = config("AWS_S3_REGION_NAME")
 CLOUDFRONT_URL = config("CLOUDFRONT_URL")
 
 ALLOWED_HOSTS = [
-    'lyria-elb-1347266760.us-east-2.elb.amazonaws.com',
                  '*',
+    '[2600:1f16:1168:be00:bd2b:84d4:5e8:4f91]'
 ]
 
 
@@ -136,7 +136,7 @@ STATIC_URL = 'static/'
 
 # Commented out to push to main branch
 # STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
-# STATIC_ROOT = '/var/www/Lyria/static/'
+STATIC_ROOT = '/var/www/Lyria/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
