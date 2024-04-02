@@ -8,6 +8,7 @@ from decouple import config
 bucket_name = settings.AWS_STORAGE_BUCKET_NAME
 aws_s3_region_name = settings.AWS_S3_REGION_NAME
 cloudfront_url = settings.CLOUDFRONT_URL
+endpoint_url = 'https://s3.dualstack.us-east-2.amazonaws.com'
 # aws_access_key_id = config('AWS_ACCESS_KEY_ID')
 # aws_secret_access_key = config('AWS_SECRET_ACCESS_KEY')
 
@@ -21,7 +22,8 @@ def index(request):
     """
     s3 = boto3.client(
         's3', 
-        region_name=aws_s3_region_name
+        region_name=aws_s3_region_name,
+        endpoint_url=endpoint_url
         # aws_access_key_id=aws_access_key_id,
         # aws_secret_access_key=aws_secret_access_key
         )
