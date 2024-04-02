@@ -20,12 +20,17 @@
     - name: Activate Virtual Environment
       command: /home/ubuntu/Lyria/.venv/bin/activate
       args:
-        executable: /bin/bash
         creates: /home/ubuntu/Lyria/.venv/bin/activate
 
     - name: Install Python3-pip
       apt:
         name: python3-pip
+        state: present
+
+    - name: Install nginx
+      become: yes
+      apt:
+        name: nginx
         state: present
 
 - hosts: staging
@@ -47,31 +52,45 @@
           - { src: '../db.sqlite3', dest: '/home/ubuntu/Lyria/db.sqlite3' }
           - { src: '../manage.py', dest: '/home/ubuntu/Lyria/manage.py' }
           - { src: '../gunicorn.conf.py', dest: '/home/ubuntu/Lyria/gunicorn.conf.py' }
+          - { src: '../.server_env', dest: '/home/ubuntu/Lyria/.env'}
+
+    - name: Synchronize Files - Root
+      become: yes
+      ansible.posix.synchronize:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        mode: push
+      with_items:
           - { src: '../gunicorn.service', dest: '/etc/systemd/system/gunicorn.service' }
           - { src: '../nginx.conf', dest: '/etc/nginx/nginx.conf'}
-          - { src: '../.server_env', dest: '/home/ubuntu/Lyria/.env'}
     
+    - name: Activate Virtual Environment
+      command: /home/ubuntu/Lyria/.venv/bin/activate
+      args:
+        creates: /home/ubuntu/Lyria/.venv/bin/activate
+
     - name: Install Requirements
       pip: 
         requirements: /home/ubuntu/Lyria/requirements.txt
         virtualenv: /home/ubuntu/Lyria/.venv
 
+    - name: Start Gunicorn
+      community.general.gunicorn:
+        chdir: /home/ubuntu/Lyria
+        venv: /home/ubuntu/Lyria/.venv
+        app: lyria.wsgi
+        config: /home/ubuntu/Lyria/gunicorn.conf.py
 
+    - name: Enable Gunicorn
+      become: yes
+      systemd:
+        name: gunicorn
+        enabled: yes
 
-    # - name: Copy Files
-    #   copy:
-    #     src: "{{ item.src }}"
-    #     dest: "{{ item.dest }}"
-    #   with_items:
-    #     - { src: '../lyria/', dest: '/home/ubuntu/Lyria/lyria' }
-    #     - { src: '../player/', dest: '/home/ubuntu/Lyria/player' }
+    - name: Start Nginx
+      become: yes
+      service:
+        name: nginx
+        state: started
+        enabled: yes
 
-    # - name: Copy files to staging server
-    #   copy:
-    #     src: ../lyria
-    #     dest: /home/ubuntu/Lyria/lyria
-
-    # - name: Copy files to staging server
-    #   copy:
-    #     src: ../player
-    #     dest: /home/ubuntu/Lyria/player
