@@ -26,7 +26,7 @@ variable "aws_region" {
 
 variable "vpc_cidr" {
   description = "CIDR block for VPC"
-  default     = "10.1.0.0/16"
+  default     = "10.2.0.0/16"
 }
 
 variable "name_prefix" {
@@ -44,13 +44,8 @@ variable "instance_type" {
 }
 
 variable "ami_main" {
-  description = "lyria-ipv6-test"
-  default     = "ami-0ca50cace18857643"
-}
-
-variable "ami_bastion" {
-  description = "AMI to be used for bastion host"
-  default     = "ami-0e83be366243f524a"
+  description = "lyria_v2.0.0"
+  default     = "ami-00041a43638d37e19"
 }
 
 variable "key_name" {
@@ -58,9 +53,14 @@ variable "key_name" {
   default     = "lyria"
 }
 
-variable "my_ip" {
-  description = "Your IP address"
+variable "my_ip_4" {
+  description = "Your IPv4 address"
   default     = "24.162.52.74/32"
+}
+
+variable "my_ip_6" {
+  description = "Your IPv6 address"
+  default     = "2603:8080:d701:55:297c:34b3:df30:2b07/128"
 }
 
 ####################################################

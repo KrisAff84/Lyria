@@ -93,68 +93,48 @@ resource "aws_route_table_association" "public2" {
   route_table_id = aws_route_table.public.id
 }
 
-###########################################
-# VPC Endpoint and Private Route Table
-###########################################
-
-########## VPC Endpoint ##########
-
-# resource "aws_vpc_endpoint" "bucket_endpoint" {
-#   service_name = "com.amazonaws.${var.aws_region}.s3"
-#   vpc_id       = aws_vpc.main.id
-#   route_table_ids = [
-#     aws_route_table.private.id
-#   ]
-#   tags = {
-#     Name = "${var.name_prefix}-bucket-endpoint"
-#   }
-# }
 
 ###########################################
-# Launch Template
+# Instance
 ###########################################
 
-resource "aws_launch_template" "asg_lt" {
-  name          = "${var.name_prefix}_asg_lt"
-  image_id      = var.ami_main
+resource "aws_instance" "lyria" {
+  ami           = var.ami_main
   instance_type = var.instance_type
   key_name      = var.key_name
+  subnet_id     = aws_subnet.public1.id
   vpc_security_group_ids = [
-    aws_security_group.asg_elb_access_sg.id,
-    aws_security_group.asg_ssh_access_sg.id
+    aws_security_group.lyria_http.id,
+    aws_security_group.lyria_ssh.id
   ]
-  iam_instance_profile {
-    arn = aws_iam_instance_profile.asg_bucket_profile.arn
+  iam_instance_profile = aws_iam_instance_profile.asg_bucket_profile.name
+  tags = {
+    Name = "${var.name_prefix}-instance"
   }
-
 }
 
 ##################################################
 # Security Groups
 ##################################################
 
-############# ASG Security Groups ############
-
-######### Access From Load Balancer ############
-
-resource "aws_security_group" "asg_elb_access_sg" {
-  name        = "${var.name_prefix}_asg_elb_access_sg"
-  description = "Allow HTTP access from load balancer"
+resource "aws_security_group" "lyria_http" {
+  name        = "${var.name_prefix}_http_sg"
+  description = "Allow Internet Access"
   vpc_id      = aws_vpc.main.id
   ingress {
-    description     = "Allow HTTP from Load Balancer"
-    from_port       = 80
-    to_port         = 80
-    protocol        = "tcp"
-    security_groups = [aws_security_group.elb_sg.id]
+    description      = "Allow IPv6 HTTP Access"
+    from_port        = 80
+    to_port          = 80
+    protocol         = "tcp"
+    ipv6_cidr_blocks = ["::/0"]
   }
-  ingress {
-    description     = "Allow HTTPS from Load Balancer"
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
-    security_groups = [aws_security_group.elb_sg.id]
-  }
+  # ingress {
+  #   description     = "Allow HTTPS from Load Balancer"
+  #   from_port       = 443
+  #   to_port         = 443
+  #   protocol        = "tcp"
+  #   security_groups = [aws_security_group.elb_sg.id]
+  # }
   egress {
     from_port        = 0
     to_port          = 0
@@ -164,40 +144,25 @@ resource "aws_security_group" "asg_elb_access_sg" {
   }
 }
 
-
-########## Instance Security Group ##########
-
-resource "aws_security_group" "elb_sg" {
-  name        = "${var.name_prefix}_elb_sg"
-  description = "Allow HTTP access from anywhere"
+resource "aws_security_group" "lyria_ssh" {
+  name        = "${var.name_prefix}_ssh_sg"
+  description = "Allow SSH Access"
   vpc_id      = aws_vpc.main.id
-}
-resource "aws_security_group_rule" "allow_ipv6_http" {
-  type              = "ingress"
-  security_group_id = aws_security_group.elb_sg.id
-  description       = "Allow HTTP from anywhere ipv6"
-  ipv6_cidr_blocks  = ["::/0"]
-  from_port         = 80
-  to_port           = 80
-  protocol          = "tcp"
-}
-resource "aws_security_group_rule" "allow_ipv6_https" {
-  type              = "ingress"
-  security_group_id = aws_security_group.elb_sg.id
-  description       = "Allow HTTPS from anywhere ipv6"
-  ipv6_cidr_blocks  = ["::/0"]
-  from_port         = 443
-  to_port           = 443
-  protocol          = "tcp"
-}
-resource "aws_security_group_rule" "allow_ipv6" {
-  type              = "egress"
-  security_group_id = aws_security_group.elb_sg.id
-  description       = "Allow all traffic to anywhere ipv6"
-  ipv6_cidr_blocks  = ["::/0"]
-  from_port         = 0
-  to_port           = 0
-  protocol          = "-1"
+
+  ingress {
+    description = "Allow IPv4 SSH Access"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [var.my_ip_4]
+  }
+  ingress {
+    description      = "Allow IPv6 SSH Access"
+    from_port        = 22
+    to_port          = 22
+    protocol         = "tcp"
+    ipv6_cidr_blocks = [var.my_ip_6]
+  }
 }
 
 #############################################
