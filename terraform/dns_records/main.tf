@@ -1,3 +1,8 @@
+provider "aws" {
+  profile = "admin-profile"
+  region = "us-east-2"
+}
+
 data "aws_lb" "current" {
   name = "${var.name_prefix}-elb"
 }
@@ -7,8 +12,8 @@ resource "aws_route53_record" "main" {
   type    = "A"
 
   alias {
-    name                   = data.aws_lb.current.dns_name
-    zone_id                = data.aws_lb.current.zone_id
+    name                   = "dv36pe0g9ao18.cloudfront.net"
+    zone_id                = "Z2FDTNDATAQYW2"
     evaluate_target_health = true
   }
 }
@@ -19,8 +24,8 @@ resource "aws_route53_record" "misspelled" {
   type    = "A"
 
   alias {
-    name                   = data.aws_lb.current.dns_name
-    zone_id                = data.aws_lb.current.zone_id
+    name                   = "dv36pe0g9ao18.cloudfront.net"
+    zone_id                = "Z2FDTNDATAQYW2"
     evaluate_target_health = true
   }
 }

@@ -3,7 +3,7 @@
 #####################################
 
 provider "aws" {
-  # profile = "admin-profile"
+  profile = "admin-profile"
   region  = var.aws_region
 }
 
@@ -13,6 +13,10 @@ provider "aws" {
 
 data "aws_availability_zones" "available" {
   state = "available"
+}
+
+data "aws_ec2_managed_prefix_list" "cloudfront" {
+  id = "pl-b6a144df"
 }
 
 ###########################################
@@ -256,8 +260,28 @@ resource "aws_lb_listener" "https" {
   ssl_policy        = var.ssl_policy
   certificate_arn   = var.certificate_arn
   default_action {
+    type = "fixed-response"
+    fixed_response {
+      content_type = "text/html"
+      message_body = "Access Denied"
+      status_code  = "403"
+    }
+
+  }
+}
+
+resource "aws_lb_listener_rule" "header" {
+  listener_arn = aws_lb_listener.https.arn
+  priority     = 1
+  action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.lb_tg.arn
+  }
+  condition {
+    http_header {
+      http_header_name = "X-Custom-Header"
+      values           = ["random-value-465768"]
+    }
   }
 }
 
@@ -374,6 +398,15 @@ resource "aws_security_group" "elb_sg" {
   name        = "${var.name_prefix}_elb_sg"
   description = "Allow HTTP access from anywhere"
   vpc_id      = aws_vpc.main.id
+
+  ingress {
+    description     = "Allow HTTPS from CloudFront Prefix List"
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+
+  }
   ingress {
     description = "Allow HTTP from anywhere"
     from_port   = 80
