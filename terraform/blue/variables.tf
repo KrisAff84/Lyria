@@ -26,7 +26,7 @@ variable "aws_region" {
 
 variable "vpc_cidr" {
   description = "CIDR block for VPC"
-  default     = "10.1.0.0/16"
+  default     = "10.2.0.0/16"
 }
 
 variable "name_prefix" {
@@ -44,8 +44,8 @@ variable "instance_type" {
 }
 
 variable "ami_main" {
-  description = "lyria-ipv6-test"
-  default     = "ami-0ca50cace18857643"
+  description = "lyria_v6"
+  default     = "ami-075192fbf30ebb487"
 }
 
 variable "ami_bastion" {
@@ -76,12 +76,17 @@ variable "bucket_arn" {
 #### Certificate
 ####################################################
 
-variable "certificate_arn" {
-  description = "ARN of the ACM certificate"
+variable "elb_certificate_arn" {
+  description = "ARN of the ACM certificate for the ELB"
   default     = "arn:aws:acm:us-east-2:835656321421:certificate/7aee737d-0e1f-4311-b1ff-c3b596d85168"
 }
 
 variable "ssl_policy" {
   description = "SSL policy for the load balancer"
-  default     = "ELBSecurityPolicy-TLS13-1-2-FIPS-2023-04"
+  default     = "ELBSecurityPolicy-TLS-1-2-Ext-2018-06"
+}
+
+variable "cf_certificate_arn" {
+  description = "ARN of the ACM certificate for CloudFront"
+  default     = "arn:aws:acm:us-east-1:835656321421:certificate/c4c8a8b4-21e2-4fac-b136-f15debdba683"
 }

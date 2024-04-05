@@ -4,33 +4,52 @@ provider "aws" {
 }
 
 
-#######################################
-# Records for ELB
-#######################################
+##############################################
+# Records for CloudFront to API for Main Site
+##############################################
 
-data "aws_lb" "current" {
-  name = "${var.name_prefix}-elb"
-}
-resource "aws_route53_record" "main" {
+resource "aws_route53_record" "main_A" {
   zone_id = var.zone_id_main
-  name    = var.A_record_name
+  name    = var.record_name
   type    = "A"
 
   alias {
-    name                   = data.aws_lb.current.dns_name
-    zone_id                = data.aws_lb.current.zone_id
+    name                   = var.cf_dns_site
+    zone_id                = var.cf_zone_id
+    evaluate_target_health = true
+  }
+}
+resource "aws_route53_record" "main_AAAA" {
+  zone_id = var.zone_id_main
+  name    = var.record_name
+  type    = "AAAA"
+
+  alias {
+    name                   = var.cf_dns_site
+    zone_id                = var.cf_zone_id
     evaluate_target_health = true
   }
 }
 
-resource "aws_route53_record" "misspelled" {
+resource "aws_route53_record" "misspelled_A" {
   zone_id = var.zone_id_misspelled
-  name    = var.A_record_name_misspelled
+  name    = var.record_name_misspelled
   type    = "A"
 
   alias {
-    name                   = data.aws_lb.current.dns_name
-    zone_id                = data.aws_lb.current.zone_id
+    name                   = var.cf_dns_site
+    zone_id                = var.cf_zone_id
+    evaluate_target_health = true
+  }
+}
+resource "aws_route53_record" "misspelled_AAAA" {
+  zone_id = var.zone_id_misspelled
+  name    = var.record_name_misspelled
+  type    = "AAAA"
+
+  alias {
+    name                   = var.cf_dns_site
+    zone_id                = var.cf_zone_id
     evaluate_target_health = true
   }
 }
@@ -53,15 +72,4 @@ resource "aws_route53_record" "cf_s3_origin_misspelled" {
   type    = "CNAME"
   records = [var.cf_s3_origin_misspelled_record]
   ttl     = var.cf_s3_origin_ttl
-}
-
-#######################################
-# Outputs
-#######################################
-
-output "elb_dns" {
-  value = data.aws_lb.current.dns_name
-}
-output "elb_zone_id" {
-  value = data.aws_lb.current.zone_id
 }
