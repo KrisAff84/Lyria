@@ -16,55 +16,57 @@ data "aws_availability_zones" "available" {
 }
 
 ###########################################
-# Resource - VPC and Subnets
+# Network Configuration
 ###########################################
 
 resource "aws_vpc" "main" {
   assign_generated_ipv6_cidr_block = true
   cidr_block                       = var.vpc_cidr
+  enable_dns_hostnames             = true
   tags = {
     Name = "${var.name_prefix}-vpc"
   }
 }
 
-############# Public Subnets #############
+# ############# Public Subnets #############
+# Needed for Bastion Host only
 
-resource "aws_subnet" "public1" {
-  vpc_id                                         = aws_vpc.main.id
-  availability_zone                              = data.aws_availability_zones.available.names[0]
-  assign_ipv6_address_on_creation                = true
-  enable_resource_name_dns_aaaa_record_on_launch = true
-  enable_dns64                                   = true
-  ipv6_cidr_block                                = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 0)
-  cidr_block                                     = cidrsubnet(var.vpc_cidr, 4, 0)
-  tags = {
-    Name = "${var.name_prefix}-public-1"
-  }
-}
-resource "aws_subnet" "public2" {
-  vpc_id                                         = aws_vpc.main.id
-  availability_zone                              = data.aws_availability_zones.available.names[1]
-  assign_ipv6_address_on_creation                = true
-  enable_resource_name_dns_aaaa_record_on_launch = true
-  enable_dns64                                   = true
-  ipv6_cidr_block                                = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 1)
-  cidr_block                                     = cidrsubnet(var.vpc_cidr, 4, 1)
-  tags = {
-    Name = "${var.name_prefix}-public-2"
-  }
-}
-resource "aws_subnet" "public3" {
-  vpc_id                                         = aws_vpc.main.id
-  availability_zone                              = data.aws_availability_zones.available.names[2]
-  assign_ipv6_address_on_creation                = true
-  enable_resource_name_dns_aaaa_record_on_launch = true
-  enable_dns64                                   = true
-  ipv6_cidr_block                                = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 2)
-  cidr_block                                     = cidrsubnet(var.vpc_cidr, 4, 2)
-  tags = {
-    Name = "${var.name_prefix}-public-3"
-  }
-}
+# resource "aws_subnet" "public1" {
+#   vpc_id                                         = aws_vpc.main.id
+#   availability_zone                              = data.aws_availability_zones.available.names[0]
+#   assign_ipv6_address_on_creation                = true
+#   enable_resource_name_dns_aaaa_record_on_launch = true
+#   enable_dns64                                   = true
+#   ipv6_cidr_block                                = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 0)
+#   cidr_block                                     = cidrsubnet(var.vpc_cidr, 4, 0)
+#   tags = {
+#     Name = "${var.name_prefix}-public-1"
+#   }
+# }
+# resource "aws_subnet" "public2" {
+#   vpc_id                                         = aws_vpc.main.id
+#   availability_zone                              = data.aws_availability_zones.available.names[1]
+#   assign_ipv6_address_on_creation                = true
+#   enable_resource_name_dns_aaaa_record_on_launch = true
+#   enable_dns64                                   = true
+#   ipv6_cidr_block                                = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 1)
+#   cidr_block                                     = cidrsubnet(var.vpc_cidr, 4, 1)
+#   tags = {
+#     Name = "${var.name_prefix}-public-2"
+#   }
+# }
+# resource "aws_subnet" "public3" {
+#   vpc_id                                         = aws_vpc.main.id
+#   availability_zone                              = data.aws_availability_zones.available.names[2]
+#   assign_ipv6_address_on_creation                = true
+#   enable_resource_name_dns_aaaa_record_on_launch = true
+#   enable_dns64                                   = true
+#   ipv6_cidr_block                                = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 2)
+#   cidr_block                                     = cidrsubnet(var.vpc_cidr, 4, 2)
+#   tags = {
+#     Name = "${var.name_prefix}-public-3"
+#   }
+# }
 
 ############# Private Subnets #############
 
@@ -100,50 +102,50 @@ resource "aws_subnet" "private3" {
 # IGW and Public Route Table
 ###########################################
 
-resource "aws_internet_gateway" "gw" {
-  vpc_id = aws_vpc.main.id
-  tags = {
-    Name = "${var.name_prefix}-igw"
-  }
-}
+# resource "aws_internet_gateway" "gw" {
+#   vpc_id = aws_vpc.main.id
+#   tags = {
+#     Name = "${var.name_prefix}-igw"
+#   }
+# }
 
 ############ Public Route Table ############
 
-resource "aws_route_table" "public" {
-  vpc_id = aws_vpc.main.id
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.gw.id
-  }
-  route {
-    ipv6_cidr_block = "::/0"
-    gateway_id      = aws_internet_gateway.gw.id
-  }
-  tags = {
-    Name = "${var.name_prefix}-public-rt"
-  }
-}
+# resource "aws_route_table" "public" {
+#   vpc_id = aws_vpc.main.id
+#   route {
+#     cidr_block = "0.0.0.0/0"
+#     gateway_id = aws_internet_gateway.gw.id
+#   }
+#   route {
+#     ipv6_cidr_block = "::/0"
+#     gateway_id      = aws_internet_gateway.gw.id
+#   }
+#   tags = {
+#     Name = "${var.name_prefix}-public-rt"
+#   }
+# }
 
 ########## Route Table Associations ##########
 
-resource "aws_route_table_association" "public1" {
-  subnet_id      = aws_subnet.public1.id
-  route_table_id = aws_route_table.public.id
-}
-resource "aws_route_table_association" "public2" {
-  subnet_id      = aws_subnet.public2.id
-  route_table_id = aws_route_table.public.id
-}
-resource "aws_route_table_association" "public3" {
-  subnet_id      = aws_subnet.public3.id
-  route_table_id = aws_route_table.public.id
-}
+# resource "aws_route_table_association" "public1" {
+#   subnet_id      = aws_subnet.public1.id
+#   route_table_id = aws_route_table.public.id
+# }
+# resource "aws_route_table_association" "public2" {
+#   subnet_id      = aws_subnet.public2.id
+#   route_table_id = aws_route_table.public.id
+# }
+# resource "aws_route_table_association" "public3" {
+#   subnet_id      = aws_subnet.public3.id
+#   route_table_id = aws_route_table.public.id
+# }
 
-###########################################
-# VPC Endpoint and Private Route Table
-###########################################
 
-########## VPC Endpoint ##########
+############ Network Connections ############
+
+########## VPC Endpoint ########## 
+## For application access to S3 ##
 
 resource "aws_vpc_endpoint" "bucket_endpoint" {
   service_name = "com.amazonaws.${var.aws_region}.s3"
@@ -156,16 +158,14 @@ resource "aws_vpc_endpoint" "bucket_endpoint" {
   }
 }
 
-########## Private Route Table ##########
+########## Private Route Table & Associations ##########
 
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.main.id
   tags = {
     Name = "${var.name_prefix}-private-rt"
   }
-
 }
-########## Route Table Associations ##########
 
 resource "aws_route_table_association" "private1" {
   subnet_id      = aws_subnet.private1.id
@@ -178,6 +178,46 @@ resource "aws_route_table_association" "private2" {
 resource "aws_route_table_association" "private3" {
   subnet_id      = aws_subnet.private3.id
   route_table_id = aws_route_table.private.id
+}
+
+###########################################
+# API Gateway
+###########################################
+
+resource "aws_apigatewayv2_api" "lyria" {
+  name          = "${var.name_prefix}-api"
+  protocol_type = "HTTP"
+}
+
+resource "aws_apigatewayv2_vpc_link" "lyria" {
+  name               = "${var.name_prefix}-vpc-link"
+  security_group_ids = [aws_security_group.elb_sg.id]
+  subnet_ids = [
+    aws_subnet.private1.id,
+    aws_subnet.private2.id,
+    aws_subnet.private3.id
+  ]
+}
+
+resource "aws_apigatewayv2_route" "lyria" {
+  api_id    = aws_apigatewayv2_api.lyria.id
+  route_key = "GET /{proxy+}"
+  target    = "integrations/${aws_apigatewayv2_integration.lyria.id}"
+}
+
+resource "aws_apigatewayv2_integration" "lyria" {
+  api_id             = aws_apigatewayv2_api.lyria.id
+  integration_type   = "HTTP_PROXY"
+  integration_method = "GET"
+  integration_uri    = aws_lb_listener.http.arn
+  connection_type    = "VPC_LINK"
+  connection_id      = aws_apigatewayv2_vpc_link.lyria.id
+}
+
+resource "aws_apigatewayv2_stage" "lyria" {
+  api_id      = aws_apigatewayv2_api.lyria.id
+  name        = "$default"
+  auto_deploy = true
 }
 
 ###########################################
@@ -254,12 +294,13 @@ resource "aws_autoscaling_policy" "main" {
 
 resource "aws_lb" "elb" {
   name            = "${var.name_prefix}-elb"
+  internal        = true
   security_groups = [aws_security_group.elb_sg.id]
   ip_address_type = "dualstack"
   subnets = [
-    aws_subnet.public1.id,
-    aws_subnet.public2.id,
-    aws_subnet.public3.id
+    aws_subnet.private1.id,
+    aws_subnet.private2.id,
+    aws_subnet.private3.id
   ]
   access_logs {
     bucket  = "lyria-logs"
@@ -273,10 +314,10 @@ resource "aws_lb_target_group" "lb_tg" {
   protocol = "HTTP"
   vpc_id   = aws_vpc.main.id
   health_check {
-    healthy_threshold   = 2
-    unhealthy_threshold = 2
-    timeout             = 3
-    interval            = 30
+    healthy_threshold   = 5
+    unhealthy_threshold = 5
+    timeout             = 5
+    interval            = 100
     path                = "/"
     port                = "traffic-port"
   }
@@ -285,6 +326,7 @@ resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.elb.arn
   port              = 80
   protocol          = "HTTP"
+  # Add the blocks below when ready for certificate
   #   default_action {
   #     type = "redirect"
   #     redirect {
@@ -345,7 +387,7 @@ resource "aws_lb_listener" "http" {
 
 resource "aws_security_group" "asg_elb_access_sg" {
   name        = "${var.name_prefix}_asg_elb_access_sg"
-  description = "Allow HTTP access from load balancer"
+  description = "Allow HTTP access from load balancer to Autoscaling Group"
   vpc_id      = aws_vpc.main.id
   ingress {
     description     = "Allow HTTP from Load Balancer"
@@ -360,13 +402,6 @@ resource "aws_security_group" "asg_elb_access_sg" {
     to_port         = 443
     protocol        = "tcp"
     security_groups = [aws_security_group.elb_sg.id]
-  }
-  egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
   }
 }
 
@@ -417,35 +452,27 @@ resource "aws_security_group" "bastion_sg" {
 
 resource "aws_security_group" "elb_sg" {
   name        = "${var.name_prefix}_elb_sg"
-  description = "Allow HTTP access from anywhere"
+  description = "Allow all access"
   vpc_id      = aws_vpc.main.id
 }
-resource "aws_security_group_rule" "allow_ipv6_http" {
-  type              = "ingress"
-  security_group_id = aws_security_group.elb_sg.id
-  description       = "Allow HTTP from anywhere ipv6"
-  ipv6_cidr_blocks  = ["::/0"]
-  from_port         = 80
-  to_port           = 80
-  protocol          = "tcp"
+
+resource "aws_security_group_rule" "local" {
+  security_group_id        = aws_security_group.elb_sg.id
+  type                     = "ingress"
+  from_port                = 0
+  to_port                  = 0
+  protocol                 = "-1"
+  source_security_group_id = aws_security_group.elb_sg.id
 }
-resource "aws_security_group_rule" "allow_ipv6_https" {
-  type              = "ingress"
+
+resource "aws_security_group_rule" "outbound" {
   security_group_id = aws_security_group.elb_sg.id
-  description       = "Allow HTTPS from anywhere ipv6"
-  ipv6_cidr_blocks  = ["::/0"]
-  from_port         = 443
-  to_port           = 443
-  protocol          = "tcp"
-}
-resource "aws_security_group_rule" "allow_ipv6" {
   type              = "egress"
-  security_group_id = aws_security_group.elb_sg.id
-  description       = "Allow all traffic to anywhere ipv6"
-  ipv6_cidr_blocks  = ["::/0"]
   from_port         = 0
   to_port           = 0
   protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  ipv6_cidr_blocks  = ["::/0"]
 }
 
 #############################################

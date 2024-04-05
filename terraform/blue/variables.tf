@@ -26,7 +26,7 @@ variable "aws_region" {
 
 variable "vpc_cidr" {
   description = "CIDR block for VPC"
-  default     = "10.1.0.0/16"
+  default     = "10.2.0.0/16"
 }
 
 variable "name_prefix" {
@@ -44,8 +44,8 @@ variable "instance_type" {
 }
 
 variable "ami_main" {
-  description = "lyria-ipv6-test"
-  default     = "ami-0ca50cace18857643"
+  description = "lyria_v6"
+  default     = "ami-075192fbf30ebb487"
 }
 
 variable "ami_bastion" {
