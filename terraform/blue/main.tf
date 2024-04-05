@@ -28,45 +28,21 @@ resource "aws_vpc" "main" {
   }
 }
 
-# ############# Public Subnets #############
+# ############# Public Subnet #############
 # Needed for Bastion Host only
 
-# resource "aws_subnet" "public1" {
-#   vpc_id                                         = aws_vpc.main.id
-#   availability_zone                              = data.aws_availability_zones.available.names[0]
-#   assign_ipv6_address_on_creation                = true
-#   enable_resource_name_dns_aaaa_record_on_launch = true
-#   enable_dns64                                   = true
-#   ipv6_cidr_block                                = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 0)
-#   cidr_block                                     = cidrsubnet(var.vpc_cidr, 4, 0)
-#   tags = {
-#     Name = "${var.name_prefix}-public-1"
-#   }
-# }
-# resource "aws_subnet" "public2" {
-#   vpc_id                                         = aws_vpc.main.id
-#   availability_zone                              = data.aws_availability_zones.available.names[1]
-#   assign_ipv6_address_on_creation                = true
-#   enable_resource_name_dns_aaaa_record_on_launch = true
-#   enable_dns64                                   = true
-#   ipv6_cidr_block                                = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 1)
-#   cidr_block                                     = cidrsubnet(var.vpc_cidr, 4, 1)
-#   tags = {
-#     Name = "${var.name_prefix}-public-2"
-#   }
-# }
-# resource "aws_subnet" "public3" {
-#   vpc_id                                         = aws_vpc.main.id
-#   availability_zone                              = data.aws_availability_zones.available.names[2]
-#   assign_ipv6_address_on_creation                = true
-#   enable_resource_name_dns_aaaa_record_on_launch = true
-#   enable_dns64                                   = true
-#   ipv6_cidr_block                                = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 2)
-#   cidr_block                                     = cidrsubnet(var.vpc_cidr, 4, 2)
-#   tags = {
-#     Name = "${var.name_prefix}-public-3"
-#   }
-# }
+resource "aws_subnet" "public" {
+  vpc_id                                         = aws_vpc.main.id
+  availability_zone                              = data.aws_availability_zones.available.names[0]
+  assign_ipv6_address_on_creation                = true
+  enable_resource_name_dns_aaaa_record_on_launch = true
+  enable_dns64                                   = true
+  ipv6_cidr_block                                = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 0)
+  cidr_block                                     = cidrsubnet(var.vpc_cidr, 4, 0)
+  tags = {
+    Name = "${var.name_prefix}-public"
+  }
+}
 
 ############# Private Subnets #############
 
@@ -102,44 +78,34 @@ resource "aws_subnet" "private3" {
 # IGW and Public Route Table
 ###########################################
 
-# resource "aws_internet_gateway" "gw" {
-#   vpc_id = aws_vpc.main.id
-#   tags = {
-#     Name = "${var.name_prefix}-igw"
-#   }
-# }
+resource "aws_internet_gateway" "gw" {
+  vpc_id = aws_vpc.main.id
+  tags = {
+    Name = "${var.name_prefix}-igw"
+  }
+}
 
 ############ Public Route Table ############
 
-# resource "aws_route_table" "public" {
-#   vpc_id = aws_vpc.main.id
-#   route {
-#     cidr_block = "0.0.0.0/0"
-#     gateway_id = aws_internet_gateway.gw.id
-#   }
-#   route {
-#     ipv6_cidr_block = "::/0"
-#     gateway_id      = aws_internet_gateway.gw.id
-#   }
-#   tags = {
-#     Name = "${var.name_prefix}-public-rt"
-#   }
-# }
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.main.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.gw.id
+  }
+  route {
+    ipv6_cidr_block = "::/0"
+    gateway_id      = aws_internet_gateway.gw.id
+  }
+  tags = {
+    Name = "${var.name_prefix}-public-rt"
+  }
+}
 
-########## Route Table Associations ##########
-
-# resource "aws_route_table_association" "public1" {
-#   subnet_id      = aws_subnet.public1.id
-#   route_table_id = aws_route_table.public.id
-# }
-# resource "aws_route_table_association" "public2" {
-#   subnet_id      = aws_subnet.public2.id
-#   route_table_id = aws_route_table.public.id
-# }
-# resource "aws_route_table_association" "public3" {
-#   subnet_id      = aws_subnet.public3.id
-#   route_table_id = aws_route_table.public.id
-# }
+resource "aws_route_table_association" "public" {
+  subnet_id      = aws_subnet.public.id
+  route_table_id = aws_route_table.public.id
+}
 
 
 ############ Network Connections ############
@@ -341,7 +307,7 @@ resource "aws_lb_listener" "http" {
   #   port              = 443
   #   protocol          = "HTTPS"
   #   ssl_policy        = var.ssl_policy
-  #   certificate_arn   = var.certificate_arn
+  #   certificate_arn   = var.elb_certificate_arn
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.lb_tg.arn
@@ -351,7 +317,7 @@ resource "aws_lb_listener" "http" {
 ###########################################
 # Bastion Host
 # Everything in this block can be commented out 
-# if you don't want a bastion host
+# if a bastion host is unneeded
 ###########################################
 
 # resource "aws_instance" "bastion" {
@@ -522,4 +488,51 @@ resource "aws_iam_role" "asg_bucket_role" {
 resource "aws_iam_instance_profile" "asg_bucket_profile" {
   name = "${var.name_prefix}_instance_profile"
   role = aws_iam_role.asg_bucket_role.name
+}
+
+#######################################################
+# CloudFront Distribution
+#######################################################
+
+resource "aws_cloudfront_distribution" "api" {
+  enabled         = true
+  is_ipv6_enabled = true
+  comment         = "Caches main Lyria site from API"
+  aliases         = ["meetheafflerbaughs.com", "www.meettheafflerbaughs.com", "www.meetheafflerbaughs.com"]
+  tags = {
+    Name    = "${var.name_prefix}-cloudfront-dist"
+    Project = "Lyria"
+    Use     = "Site_API"
+  }
+  origin {
+    origin_id   = "api"
+    domain_name = "${aws_apigatewayv2_api.lyria.id}.execute-api.${var.aws_region}.amazonaws.com"
+    custom_origin_config {
+      http_port              = 80
+      https_port             = 443
+      origin_protocol_policy = "https-only"
+      origin_ssl_protocols   = ["TLSv1.2"]
+    }
+  }
+  default_cache_behavior {
+    viewer_protocol_policy   = "redirect-to-https"
+    allowed_methods          = ["GET", "HEAD"]
+    cached_methods           = ["GET", "HEAD"]
+    compress                 = true
+    cache_policy_id          = "658327ea-f89d-4fab-a63d-7e88639e58f6" # CachingOptimized
+    origin_request_policy_id = "b689b0a8-53d0-40ab-baf2-68738e2966ac" # AllViewerExceptHostHeader
+    target_origin_id         = "api"
+  }
+  viewer_certificate {
+    acm_certificate_arn      = var.cf_certificate_arn
+    minimum_protocol_version = "TLSv1.2_2021"
+    ssl_support_method       = "sni-only"
+
+  }
+  restrictions {
+    geo_restriction {
+      locations        = []
+      restriction_type = "none"
+    }
+  }
 }

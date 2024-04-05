@@ -7,3 +7,13 @@ output "api_endpoint" {
   description = "API endpoint"
   value       = aws_apigatewayv2_api.lyria.api_endpoint
 }
+
+output "cloudfront_url" {
+  description = "Cloudfront URL for the main site"
+  value       = aws_cloudfront_distribution.api.domain_name
+}
+
+output "cloudfront_zone_id" {
+  description = "Cloudfront zone ID for main site"
+  value       = aws_cloudfront_distribution.api.hosted_zone_id
+}

@@ -1,8 +1,3 @@
-variable "name_prefix" {
-  description = "Naming prefix of current elb"
-  default     = "lyria-green"
-}
-
 variable "zone_id_main" {
   description = "Route53 zone ID for main domain"
   default     = "Z09206903VMHX9SR3PGQF"
@@ -13,12 +8,12 @@ variable "zone_id_misspelled" {
   default     = "Z06032811HZJPQ3EPMZ6P"
 }
 
-variable "A_record_name" {
+variable "record_name" {
   description = "Name of the A record"
   default     = "meettheafflerbaughs.com"
 }
 
-variable "A_record_name_misspelled" {
+variable "record_name_misspelled" {
   description = "Name of the A record for the misspelled domain"
   default     = "meetheafflerbaughs.com"
 }
@@ -46,4 +41,18 @@ variable "cf_s3_origin_misspelled_record" {
 variable "cf_s3_origin_ttl" {
   description = "TTL for the CloudFront to S3 origin records"
   default     = "604800"
+}
+
+############################################
+# For Use with CloudFront to API Gateway
+############################################
+
+variable "cf_dns_site" {
+  description = "Name of the CloudFront distribution for the site"
+  default     = "d1a5dru8p9s3s4.cloudfront.net"
+}
+
+variable "cf_zone_id" {
+  description = "Zone ID for the CloudFront distribution for the site"
+  default     = "Z2FDTNDATAQYW2"
 }
