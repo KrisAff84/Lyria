@@ -15,7 +15,7 @@ on:
 env:
   AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
   AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-  STAGING_INSTANCE_ID: 'i-0a196b4cdcbc3ed7e'
+  STAGING_INSTANCE_ID: 'i-0c8fa1295129026ce'
 
 jobs:
   create_image:

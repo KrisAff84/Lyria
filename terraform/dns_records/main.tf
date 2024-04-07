@@ -58,18 +58,18 @@ resource "aws_route53_record" "misspelled_AAAA" {
 # Records for CloudFront to S3 origin
 #######################################
 
-resource "aws_route53_record" "cf_s3_origin_main" {
-  zone_id = var.zone_id_main
-  name    = var.cf_s3_origin_main_name
-  type    = "CNAME"
-  records = [var.cf_s3_origin_main_record]
-  ttl     = var.cf_s3_origin_ttl
-}
+# resource "aws_route53_record" "cf_s3_origin_main" {
+#   zone_id = var.zone_id_main
+#   name    = var.cf_s3_origin_main_name
+#   type    = "CNAME"
+#   records = [var.cf_s3_origin_main_record]
+#   ttl     = var.cf_s3_origin_ttl
+# }
 
-resource "aws_route53_record" "cf_s3_origin_misspelled" {
-  zone_id = var.zone_id_misspelled
-  name    = var.cf_s3_origin_misspelled_name
-  type    = "CNAME"
-  records = [var.cf_s3_origin_misspelled_record]
-  ttl     = var.cf_s3_origin_ttl
-}
+# resource "aws_route53_record" "cf_s3_origin_misspelled" {
+#   zone_id = var.zone_id_misspelled
+#   name    = var.cf_s3_origin_misspelled_name
+#   type    = "CNAME"
+#   records = [var.cf_s3_origin_misspelled_record]
+#   ttl     = var.cf_s3_origin_ttl
+# }

@@ -12,7 +12,7 @@ RUN pip install -r /Lyria/requirements.txt
 
 COPY . /Lyria
 
-EXPOSE 81
+EXPOSE 8000
 
 WORKDIR /Lyria
 

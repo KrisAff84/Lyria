@@ -167,14 +167,14 @@ resource "aws_apigatewayv2_vpc_link" "lyria" {
 
 resource "aws_apigatewayv2_route" "lyria" {
   api_id    = aws_apigatewayv2_api.lyria.id
-  route_key = "GET /{proxy+}"
+  route_key = "ANY /{proxy+}"
   target    = "integrations/${aws_apigatewayv2_integration.lyria.id}"
 }
 
 resource "aws_apigatewayv2_integration" "lyria" {
   api_id             = aws_apigatewayv2_api.lyria.id
   integration_type   = "HTTP_PROXY"
-  integration_method = "GET"
+  integration_method = "ANY"
   integration_uri    = aws_lb_listener.http.arn
   connection_type    = "VPC_LINK"
   connection_id      = aws_apigatewayv2_vpc_link.lyria.id
@@ -293,21 +293,21 @@ resource "aws_lb_listener" "http" {
   port              = 80
   protocol          = "HTTP"
   # Add the blocks below when ready for certificate
-    default_action {
-      type = "redirect"
-      redirect {
-        protocol    = "HTTPS"
-        port        = "443"
-        status_code = "HTTP_301"
-      }
-    }
-  }
-  resource "aws_lb_listener" "https" {
-    load_balancer_arn = aws_lb.elb.arn
-    port              = 443
-    protocol          = "HTTPS"
-    ssl_policy        = var.ssl_policy
-    certificate_arn   = var.elb_certificate_arn
+  #   default_action {
+  #     type = "redirect"
+  #     redirect {
+  #       protocol    = "HTTPS"
+  #       port        = "443"
+  #       status_code = "HTTP_301"
+  #     }
+  #   }
+  # }
+  # resource "aws_lb_listener" "https" {
+  #   load_balancer_arn = aws_lb.elb.arn
+  #   port              = 443
+  #   protocol          = "HTTPS"
+  #   ssl_policy        = var.ssl_policy
+  #   certificate_arn   = var.elb_certificate_arn
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.lb_tg.arn
@@ -499,6 +499,7 @@ resource "aws_cloudfront_distribution" "api" {
   is_ipv6_enabled = true
   comment         = "Caches main Lyria site from API"
   aliases         = ["meetheafflerbaughs.com", "www.meettheafflerbaughs.com", "www.meetheafflerbaughs.com"]
+  http_version    = "http2and3"
   tags = {
     Name    = "${var.name_prefix}-cloudfront-dist"
     Project = "Lyria"
