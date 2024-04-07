@@ -19,7 +19,7 @@ env:
   DEBUG: 'False'
   SONG_ORDER: '5,3,1,0,2,4'
   SECRET_KEY: ${{secrets.SECRET_KEY}}
-  STAGING_INSTANCE_ID: 'i-0a196b4cdcbc3ed7e'
+  STAGING_INSTANCE_ID: 'i-0c8fa1295129026ce'
   
 permissions:
   contents: read
