@@ -44,8 +44,8 @@ variable "instance_type" {
 }
 
 variable "ami_main" {
-  description = "lyria_v6"
-  default     = "ami-075192fbf30ebb487"
+  description = "lyria_v7"
+  default     = "ami-061c4969ee8ab2d85"
 }
 
 variable "ami_bastion" {

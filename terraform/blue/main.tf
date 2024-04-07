@@ -146,45 +146,6 @@ resource "aws_route_table_association" "private3" {
   route_table_id = aws_route_table.private.id
 }
 
-###########################################
-# API Gateway
-###########################################
-
-resource "aws_apigatewayv2_api" "lyria" {
-  name          = "${var.name_prefix}-api"
-  protocol_type = "HTTP"
-}
-
-resource "aws_apigatewayv2_vpc_link" "lyria" {
-  name               = "${var.name_prefix}-vpc-link"
-  security_group_ids = [aws_security_group.elb_sg.id]
-  subnet_ids = [
-    aws_subnet.private1.id,
-    aws_subnet.private2.id,
-    aws_subnet.private3.id
-  ]
-}
-
-resource "aws_apigatewayv2_route" "lyria" {
-  api_id    = aws_apigatewayv2_api.lyria.id
-  route_key = "ANY /{proxy+}"
-  target    = "integrations/${aws_apigatewayv2_integration.lyria.id}"
-}
-
-resource "aws_apigatewayv2_integration" "lyria" {
-  api_id             = aws_apigatewayv2_api.lyria.id
-  integration_type   = "HTTP_PROXY"
-  integration_method = "ANY"
-  integration_uri    = aws_lb_listener.http.arn
-  connection_type    = "VPC_LINK"
-  connection_id      = aws_apigatewayv2_vpc_link.lyria.id
-}
-
-resource "aws_apigatewayv2_stage" "lyria" {
-  api_id      = aws_apigatewayv2_api.lyria.id
-  name        = "$default"
-  auto_deploy = true
-}
 
 ###########################################
 # Launch Template
@@ -488,6 +449,46 @@ resource "aws_iam_role" "asg_bucket_role" {
 resource "aws_iam_instance_profile" "asg_bucket_profile" {
   name = "${var.name_prefix}_instance_profile"
   role = aws_iam_role.asg_bucket_role.name
+}
+
+###########################################
+# API Gateway
+###########################################
+
+resource "aws_apigatewayv2_api" "lyria" {
+  name          = "${var.name_prefix}-api"
+  protocol_type = "HTTP"
+}
+
+resource "aws_apigatewayv2_vpc_link" "lyria" {
+  name               = "${var.name_prefix}-vpc-link"
+  security_group_ids = [aws_security_group.elb_sg.id]
+  subnet_ids = [
+    aws_subnet.private1.id,
+    aws_subnet.private2.id,
+    aws_subnet.private3.id
+  ]
+}
+
+resource "aws_apigatewayv2_route" "lyria" {
+  api_id    = aws_apigatewayv2_api.lyria.id
+  route_key = "GET /{proxy+}"
+  target    = "integrations/${aws_apigatewayv2_integration.lyria.id}"
+}
+
+resource "aws_apigatewayv2_integration" "lyria" {
+  api_id             = aws_apigatewayv2_api.lyria.id
+  integration_type   = "HTTP_PROXY"
+  integration_method = "GET"
+  integration_uri    = aws_lb_listener.http.arn
+  connection_type    = "VPC_LINK"
+  connection_id      = aws_apigatewayv2_vpc_link.lyria.id
+}
+
+resource "aws_apigatewayv2_stage" "lyria" {
+  api_id      = aws_apigatewayv2_api.lyria.id
+  name        = "$default"
+  auto_deploy = true
 }
 
 #######################################################
