@@ -44,8 +44,8 @@ variable "instance_type" {
 }
 
 variable "ami_main" {
-  description = "lyria_v6"
-  default     = "ami-075192fbf30ebb487"
+  description = "lyria_v7"
+  default     = "ami-061c4969ee8ab2d85"
 }
 
 variable "ami_bastion" {
@@ -88,5 +88,5 @@ variable "ssl_policy" {
 
 variable "cf_certificate_arn" {
   description = "ARN of the ACM certificate for CloudFront"
-  default     = "arn:aws:acm:us-east-1:835656321421:certificate/c4c8a8b4-21e2-4fac-b136-f15debdba683"
+  default     = "arn:aws:acm:us-east-1:835656321421:certificate/150d0e5f-766e-4c68-9b25-944d8fb364fc"
 }

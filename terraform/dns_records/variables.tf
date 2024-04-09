@@ -49,7 +49,7 @@ variable "cf_s3_origin_ttl" {
 
 variable "cf_dns_site" {
   description = "Name of the CloudFront distribution for the site"
-  default     = "d1a5dru8p9s3s4.cloudfront.net"
+  default     = "d2klx7z7lam8ey.cloudfront.net"
 }
 
 variable "cf_zone_id" {
