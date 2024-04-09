@@ -499,8 +499,13 @@ resource "aws_cloudfront_distribution" "api" {
   enabled         = true
   is_ipv6_enabled = true
   comment         = "Caches main Lyria site from API"
-  aliases         = ["meetheafflerbaughs.com", "www.meettheafflerbaughs.com", "www.meetheafflerbaughs.com"]
-  http_version    = "http2and3"
+  aliases = [
+    "www.meettheafflerbaughs.com",
+    "meettheafflerbaughs.com",
+    "www.meetheafflerbaughs.com",
+    "meetheafflerbaughs.com"
+  ]
+  http_version = "http2and3"
   tags = {
     Name    = "${var.name_prefix}-cloudfront-dist"
     Project = "Lyria"
