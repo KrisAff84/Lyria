@@ -76,8 +76,61 @@ resource "aws_s3_bucket_policy" "storage_bucket_policy" {
   })
 }
 
+# Creates Folder for Songs
 resource "aws_s3_object" "song_folder" {
   for_each = aws_s3_bucket.storage_bucket
   bucket   = each.value.bucket
   key      = "songs/"
+}
+
+
+#######################################################
+# CloudFront Distribution
+# For serving audio and image files from storage bucket
+#######################################################
+
+resource "aws_cloudfront_distribution" "storage_bucket_distribution" {
+  for_each = aws_s3_bucket.storage_bucket
+  comment  = "Serves audio and image files from storage bucket"
+  origin {
+    domain_name = each.value.bucket_regional_domain_name
+    origin_id   = each.value.id
+  }
+
+  enabled         = true
+  is_ipv6_enabled = true
+
+  default_cache_behavior {
+    viewer_protocol_policy     = "redirect-to-https"
+    allowed_methods            = ["GET", "HEAD", "OPTIONS"]
+    cached_methods             = ["GET", "HEAD", "OPTIONS"]
+    target_origin_id           = each.value.bucket_regional_domain_name
+    cache_policy_id            = var.cache_policy_id
+    origin_request_policy_id   = var.origin_request_policy_id
+    response_headers_policy_id = var.response_headers_policy_id
+    compress                   = true
+
+    forwarded_values {
+      query_string = false
+      cookies {
+        forward = "none"
+      }
+    }
+  }
+
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+    }
+  }
+
+  viewer_certificate {
+    cloudfront_default_certificate = true
+  }
+
+  tags = {
+    project = var.name_prefix
+    use     = "audio_and_image_storage"
+    env     = each.key
+  }
 }
