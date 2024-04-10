@@ -90,3 +90,24 @@ variable "cf_certificate_arn" {
   description = "ARN of the ACM certificate for CloudFront"
   default     = "arn:aws:acm:us-east-1:835656321421:certificate/150d0e5f-766e-4c68-9b25-944d8fb364fc"
 }
+
+variable "domain_aliases" {
+  type        = list(string)
+  description = "Domain aliases for the CloudFront distribution/SSL certificate"
+  default = [
+    "meettheafflerbaughs.com",
+    "www.meettheafflerbaughs.com",
+    "meetheafflerbaughs.com",
+    "www.meetheafflerbaughs.com",
+  ]
+}
+
+variable "cache_policy_id" {
+  description = "ID of the cache policy for CloudFront"
+  default     = "658327ea-f89d-4fab-a63d-7e88639e58f6" # CachingOptimized
+}
+
+variable "origin_request_policy_id" {
+  description = "ID of the origin request policy for CloudFront"
+  default     = "b689b0a8-53d0-40ab-baf2-68738e2966ac" # AllViewerExceptHostHeader
+}

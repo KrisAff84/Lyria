@@ -499,13 +499,8 @@ resource "aws_cloudfront_distribution" "api" {
   enabled         = true
   is_ipv6_enabled = true
   comment         = "Caches main Lyria site from API"
-  aliases = [
-    "www.meettheafflerbaughs.com",
-    "meettheafflerbaughs.com",
-    "www.meetheafflerbaughs.com",
-    "meetheafflerbaughs.com"
-  ]
-  http_version = "http2and3"
+  aliases         = var.domain_aliases
+  http_version    = "http2and3"
   tags = {
     Name    = "${var.name_prefix}-cloudfront-dist"
     Project = "Lyria"
@@ -526,8 +521,8 @@ resource "aws_cloudfront_distribution" "api" {
     allowed_methods          = ["GET", "HEAD"]
     cached_methods           = ["GET", "HEAD"]
     compress                 = true
-    cache_policy_id          = "658327ea-f89d-4fab-a63d-7e88639e58f6" # CachingOptimized
-    origin_request_policy_id = "b689b0a8-53d0-40ab-baf2-68738e2966ac" # AllViewerExceptHostHeader
+    cache_policy_id          = var.cache_policy_id
+    origin_request_policy_id = var.origin_request_policy_id
     target_origin_id         = "api"
   }
   viewer_certificate {
