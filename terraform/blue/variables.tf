@@ -14,6 +14,10 @@ variable "secret_key" {
   sensitive   = true
 }
 
+variable "aws_profile" {
+  description = "AWS Profile"
+  default     = "kris84"
+}
 
 ####################################################
 #####    Network
@@ -21,12 +25,12 @@ variable "secret_key" {
 
 variable "aws_region" {
   description = "AWS Region"
-  default     = "us-east-2"
+  default     = "us-east-1"
 }
 
 variable "vpc_cidr" {
   description = "CIDR block for VPC"
-  default     = "10.2.0.0/16"
+  default     = "10.1.0.0/16"
 }
 
 variable "name_prefix" {
@@ -69,7 +73,7 @@ variable "my_ip" {
 
 variable "bucket_arn" {
   description = "ARN of the S3 bucket"
-  default     = "arn:aws:s3:::lyria-storage"
+  default     = "arn:aws:s3:::lyria-storage-2024-dev"
 }
 
 ####################################################

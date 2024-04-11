@@ -113,7 +113,7 @@ resource "aws_cloudfront_distribution" "storage_bucket" {
     domain_name              = each.value.bucket_regional_domain_name
     origin_id                = each.key
     origin_access_control_id = aws_cloudfront_origin_access_control.storage_bucket[each.key].id
-    origin_path              = "/songs"
+    origin_path              = ""
   }
   default_cache_behavior {
     viewer_protocol_policy     = "redirect-to-https"
