@@ -1,9 +1,10 @@
-/* This file configures the bucket used for the 
-storage of audio and image files for Lyria. It is
-useful to configure the storage bucket separately
-so that the same storage bucket can be used during
-testing, or when re-deploying the application to a
-different environment */
+/* 
+This file configures the buckets and CloudFront distributions used for the 
+storage of audio and image files for Lyria. It is useful to configure the 
+storage buckets separately from the rest of the infrastructure so that the 
+same storage buckets can be used during development, or when re-deploying 
+the application to a different environment. 
+*/
 
 ################################################
 # Provider Configuration
@@ -41,9 +42,10 @@ resource "aws_s3_bucket_public_access_block" "storage_bucket_public_access_block
 resource "aws_s3_bucket_policy" "storage_bucket_policy" {
   for_each   = aws_s3_bucket.storage_bucket
   bucket     = each.value.bucket
-  depends_on = [aws_cloudfront_distribution.storage_bucket_distribution]
+  depends_on = [aws_cloudfront_distribution.storage_bucket]
   policy = jsonencode({
-    Version = "2012-10-17"
+    Version = "2012-10-17",
+    Id      = "PolicyForLoggingAndCloudFront",
 
     Statement = [
       {
@@ -68,7 +70,7 @@ resource "aws_s3_bucket_policy" "storage_bucket_policy" {
         Condition = {
           StringEquals = {
             "AWS:SourceArn" : [
-              "${aws_cloudfront_distribution.storage_bucket_distribution["${each.key}"].arn}"
+              "${aws_cloudfront_distribution.storage_bucket["${each.key}"].arn}"
             ]
           }
         }
@@ -92,27 +94,26 @@ resource "aws_s3_object" "song_folder" {
 # For serving audio and image files from storage bucket
 #######################################################
 
-resource "aws_cloudfront_origin_access_identity" "storage_bucket_origin_access_identity" {
-  for_each = aws_s3_bucket.storage_bucket
-  comment  = "Allows CloudFront access to ${each.key} bucket"
+resource "aws_cloudfront_origin_access_control" "storage_bucket" {
+  for_each                          = aws_s3_bucket.storage_bucket
+  name                              = "storage_bucket_oac_${each.key}"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
 }
 
-resource "aws_cloudfront_distribution" "storage_bucket_distribution" {
-  for_each   = aws_s3_bucket.storage_bucket
-  depends_on = [aws_cloudfront_origin_access_identity.storage_bucket_origin_access_identity]
-
+resource "aws_cloudfront_distribution" "storage_bucket" {
+  for_each        = aws_s3_bucket.storage_bucket
   comment         = "Serves audio and image files from ${var.name_prefix} ${each.key} storage"
   price_class     = "PriceClass_All"
   http_version    = "http2and3"
   enabled         = true
   is_ipv6_enabled = true
   origin {
-    domain_name = each.value.bucket_regional_domain_name
-    origin_id   = each.key
-
-    s3_origin_config {
-      origin_access_identity = aws_cloudfront_origin_access_identity.storage_bucket_origin_access_identity[each.key].cloudfront_access_identity_path
-    }
+    domain_name              = each.value.bucket_regional_domain_name
+    origin_id                = each.key
+    origin_access_control_id = aws_cloudfront_origin_access_control.storage_bucket[each.key].id
+    origin_path              = "/songs"
   }
   default_cache_behavior {
     viewer_protocol_policy     = "redirect-to-https"
