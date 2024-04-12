@@ -70,22 +70,24 @@ resource "aws_s3_bucket_policy" "storage_bucket_policy" {
         Condition = {
           StringEquals = {
             "AWS:SourceArn" : [
-              "${aws_cloudfront_distribution.storage_bucket["${each.key}"].arn}"
+              "${aws_cloudfront_distribution.storage_bucket.arn}"
             ]
           }
         }
-
-
       }
     ]
   })
 }
 
-# Creates Folder for Songs
-resource "aws_s3_object" "song_folder" {
-  for_each = aws_s3_bucket.storage_bucket
-  bucket   = each.value.bucket
-  key      = "songs/"
+# Creates Folder Structure
+resource "aws_s3_object" "prod_folder_structure" {
+  bucket = aws_s3_bucket.storage_bucket["prod"].bucket
+  key    = "songs/"
+}
+
+resource "aws_s3_object" "dev_folder_structure" {
+  bucket = aws_s3_bucket.storage_bucket["dev"].bucket
+  key    = "dev/songs/"
 }
 
 
@@ -103,23 +105,39 @@ resource "aws_cloudfront_origin_access_control" "storage_bucket" {
 }
 
 resource "aws_cloudfront_distribution" "storage_bucket" {
-  for_each        = aws_s3_bucket.storage_bucket
-  comment         = "Serves audio and image files from ${var.name_prefix} ${each.key} storage"
+  comment         = "Serves audio and image files from storage buckets"
   price_class     = "PriceClass_All"
   http_version    = "http2and3"
   enabled         = true
   is_ipv6_enabled = true
   origin {
-    domain_name              = each.value.bucket_regional_domain_name
-    origin_id                = each.key
-    origin_access_control_id = aws_cloudfront_origin_access_control.storage_bucket[each.key].id
+    domain_name              = aws_s3_bucket.storage_bucket["dev"].bucket_regional_domain_name
+    origin_id                = "dev"
+    origin_access_control_id = aws_cloudfront_origin_access_control.storage_bucket["dev"].id
+    origin_path              = ""
+  }
+  origin {
+    domain_name              = aws_s3_bucket.storage_bucket["prod"].bucket_regional_domain_name
+    origin_id                = "prod"
+    origin_access_control_id = aws_cloudfront_origin_access_control.storage_bucket["prod"].id
     origin_path              = ""
   }
   default_cache_behavior {
     viewer_protocol_policy     = "redirect-to-https"
     allowed_methods            = ["GET", "HEAD", "OPTIONS"]
     cached_methods             = ["GET", "HEAD", "OPTIONS"]
-    target_origin_id           = each.key
+    target_origin_id           = "prod"
+    cache_policy_id            = var.cache_policy_id
+    origin_request_policy_id   = var.origin_request_policy_id
+    response_headers_policy_id = var.response_headers_policy_id
+    compress                   = true
+  }
+  ordered_cache_behavior {
+    path_pattern               = "/dev/*"
+    target_origin_id           = "dev"
+    viewer_protocol_policy     = "redirect-to-https"
+    allowed_methods            = ["GET", "HEAD", "OPTIONS"]
+    cached_methods             = ["GET", "HEAD", "OPTIONS"]
     cache_policy_id            = var.cache_policy_id
     origin_request_policy_id   = var.origin_request_policy_id
     response_headers_policy_id = var.response_headers_policy_id
@@ -143,8 +161,7 @@ resource "aws_cloudfront_distribution" "storage_bucket" {
   }
 
   tags = {
-    project     = var.name_prefix
-    use         = "bucket_objects"
-    environment = "${each.key}"
+    project = var.name_prefix
+    use     = "bucket_objects"
   }
 }
