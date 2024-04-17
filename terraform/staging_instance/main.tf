@@ -21,8 +21,12 @@ data "aws_subnets" "default" {
   }
 }
 
-data "aws_s3_bucket" "storage" {
+data "aws_s3_bucket" "storage_dev" {
   bucket = "${var.name_prefix}-storage-2024-dev"
+}
+
+data "aws_s3_bucket" "storage_prod" {
+  bucket = "${var.name_prefix}-storage-2024-prod"
 }
 
 ##################################################
@@ -43,8 +47,10 @@ resource "aws_iam_role_policy" "staging_policy" {
           "s3:GetObject",
         ],
         "Resource" : [
-          "${data.aws_s3_bucket.storage.arn}",
-          "${data.aws_s3_bucket.storage.arn}/*"
+          "${data.aws_s3_bucket.storage_dev.arn}",
+          "${data.aws_s3_bucket.storage_dev.arn}/*",
+          "${data.aws_s3_bucket.storage_prod.arn}",
+          "${data.aws_s3_bucket.storage_prod.arn}/*"
         ]
       }
     ]
@@ -92,7 +98,7 @@ resource "aws_instance" "staging_instance" {
               #!/bin/bash
               apt-get update -y
               apt-get install ca-certificates curl -y
-              install -m 0755 -d /etc/apt/keyrings -y
+              install -m 0755 -d /etc/apt/keyrings
               curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
               chmod a+r /etc/apt/keyrings/docker.asc
               echo \
