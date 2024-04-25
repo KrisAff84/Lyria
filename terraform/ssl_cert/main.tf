@@ -17,7 +17,7 @@ resource "aws_acm_certificate" "ssl" {
   tags = {
     Name    = "SSL Certificate"
     Project = "Lyria"
-    Use     = "Load Balancer and CloudFront Distribution"
+    Use     = "Load balancer and CloudFront distribution"
   }
 }
 

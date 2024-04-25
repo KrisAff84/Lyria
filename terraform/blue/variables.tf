@@ -48,8 +48,8 @@ variable "instance_type" {
 }
 
 variable "ami_main" {
-  description = "lyria_v7"
-  default     = "ami-061c4969ee8ab2d85"
+  description = "lyria_v1"
+  default     = "ami-0ba5a9d95e99588e7"
 }
 
 variable "ami_bastion" {
@@ -59,7 +59,7 @@ variable "ami_bastion" {
 
 variable "key_name" {
   description = "SSH key name"
-  default     = "lyria"
+  default     = "lyria_2024"
 }
 
 variable "my_ip" {
@@ -73,7 +73,7 @@ variable "my_ip" {
 
 variable "bucket_arn" {
   description = "ARN of the S3 bucket"
-  default     = "arn:aws:s3:::lyria-storage-2024-dev"
+  default     = "arn:aws:s3:::lyria-storage-2024-prod"
 }
 
 ####################################################
