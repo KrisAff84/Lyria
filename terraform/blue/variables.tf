@@ -92,7 +92,7 @@ variable "ssl_policy" {
 
 variable "cf_certificate_arn" {
   description = "ARN of the ACM certificate for CloudFront"
-  default     = "arn:aws:acm:us-east-1:835656321421:certificate/150d0e5f-766e-4c68-9b25-944d8fb364fc"
+  default     = "arn:aws:acm:us-east-1:637423562225:certificate/2c63d249-2e6e-49fb-99ae-b434603081f0"
 }
 
 variable "domain_aliases" {

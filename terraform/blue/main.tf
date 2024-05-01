@@ -499,7 +499,7 @@ resource "aws_cloudfront_distribution" "api" {
   enabled         = true
   is_ipv6_enabled = true
   comment         = "Caches main Lyria site from API"
-  # aliases         = var.domain_aliases
+  aliases         = var.domain_aliases
   http_version    = "http2and3"
   tags = {
     Name    = "${var.name_prefix}-cloudfront-dist"
@@ -526,8 +526,8 @@ resource "aws_cloudfront_distribution" "api" {
     target_origin_id         = "api"
   }
   viewer_certificate {
-    # acm_certificate_arn      = var.cf_certificate_arn
-    cloudfront_default_certificate = true
+    acm_certificate_arn      = var.cf_certificate_arn
+    # cloudfront_default_certificate = true
     minimum_protocol_version = "TLSv1.2_2021"
     ssl_support_method       = "sni-only"
 
