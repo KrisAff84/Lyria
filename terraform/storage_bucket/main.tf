@@ -54,10 +54,8 @@ resource "aws_s3_bucket_policy" "storage_bucket_policy" {
         Principal = {
           "Service" : "logging.s3.amazonaws.com"
         },
-        Action = "s3:PutObject",
-
+        Action   = "s3:PutObject",
         Resource = "${each.value.arn}/*"
-
       },
       {
         Sid    = "AllowCloudFrontGetObject",
@@ -77,6 +75,18 @@ resource "aws_s3_bucket_policy" "storage_bucket_policy" {
       }
     ]
   })
+}
+
+resource "aws_s3_bucket_logging" "storage_bucket_logging" {
+  for_each      = aws_s3_bucket.storage_bucket
+  bucket        = each.value.bucket
+  target_bucket = var.log_bucket
+  target_prefix = "${element(split("_", each.key), 3)}_storage_bucket_server_access"
+  target_object_key_format {
+    partitioned_prefix {
+      partition_date_source = "EventTime"
+    }
+  }
 }
 
 # Creates Folder Structure
@@ -143,11 +153,11 @@ resource "aws_cloudfront_distribution" "storage_bucket" {
     response_headers_policy_id = var.response_headers_policy_id
     compress                   = true
   }
-  # logging_config {
-  #   bucket = var.log_bucket
-  #   include_cookies = false
-  #   prefix = "storage_bucket_logs"
-  # }
+  logging_config {
+    bucket          = var.log_bucket_endpoint
+    include_cookies = false
+    prefix          = "cloudfront-files"
+  }
 
   restrictions {
     geo_restriction {

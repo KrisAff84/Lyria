@@ -18,7 +18,7 @@ env:
   AWS_S3_REGION_NAME: 'us-east-1'
   CLOUDFRONT_URL: 'https://d339fsp1ckp0lm.cloudfront.net/'
   DEBUG: 'False'
-  SONG_ORDER: '0,1,2'
+  SONG_ORDER: '1,0,2,3,4,5'
   SECRET_KEY: ${{secrets.SECRET_KEY}}
   STAGING_INSTANCE_ID: 'i-057ba06636c67355f'
   
