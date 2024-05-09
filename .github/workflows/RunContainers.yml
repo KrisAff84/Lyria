@@ -13,13 +13,14 @@ on:
 env:
   AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
   AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-  AWS_STORAGE_BUCKET_NAME: 'lyria-storage'
-  AWS_S3_REGION_NAME: 'us-east-2'
-  CLOUDFRONT_URL: 'https://d3v05ohikl64ni.cloudfront.net/'
+  AWS_STORAGE_BUCKET_NAME: 'lyria-storage-2024-prod'
+  AWS_REGION: 'us-east-1'
+  AWS_S3_REGION_NAME: 'us-east-1'
+  CLOUDFRONT_URL: 'https://d339fsp1ckp0lm.cloudfront.net/'
   DEBUG: 'False'
-  SONG_ORDER: '5,3,1,0,2,4'
+  SONG_ORDER: '1,0,2,3,4,5'
   SECRET_KEY: ${{secrets.SECRET_KEY}}
-  STAGING_INSTANCE_ID: 'i-0c8fa1295129026ce'
+  STAGING_INSTANCE_ID: 'i-057ba06636c67355f'
   
 permissions:
   contents: read

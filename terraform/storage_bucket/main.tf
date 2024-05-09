@@ -1,9 +1,10 @@
-/* This file configures the bucket used for the 
-storage of audio and image files for Lyria. It is
-useful to configure the storage bucket separately
-so that the same storage bucket can be used during
-testing, or when re-deploying the application to a
-different environment */
+/* 
+This file configures the buckets and CloudFront distributions used for the 
+storage of audio and image files for Lyria. It is useful to configure the 
+storage buckets separately from the rest of the infrastructure so that the 
+same storage buckets can be used during development, or when re-deploying 
+the application to a different environment. 
+*/
 
 ################################################
 # Provider Configuration
@@ -41,9 +42,10 @@ resource "aws_s3_bucket_public_access_block" "storage_bucket_public_access_block
 resource "aws_s3_bucket_policy" "storage_bucket_policy" {
   for_each   = aws_s3_bucket.storage_bucket
   bucket     = each.value.bucket
-  depends_on = [aws_cloudfront_distribution.storage_bucket_distribution]
+  depends_on = [aws_cloudfront_distribution.storage_bucket]
   policy = jsonencode({
-    Version = "2012-10-17"
+    Version = "2012-10-17",
+    Id      = "PolicyForLoggingAndCloudFront",
 
     Statement = [
       {
@@ -52,10 +54,8 @@ resource "aws_s3_bucket_policy" "storage_bucket_policy" {
         Principal = {
           "Service" : "logging.s3.amazonaws.com"
         },
-        Action = "s3:PutObject",
-
+        Action   = "s3:PutObject",
         Resource = "${each.value.arn}/*"
-
       },
       {
         Sid    = "AllowCloudFrontGetObject",
@@ -68,22 +68,36 @@ resource "aws_s3_bucket_policy" "storage_bucket_policy" {
         Condition = {
           StringEquals = {
             "AWS:SourceArn" : [
-              "${aws_cloudfront_distribution.storage_bucket_distribution["${each.key}"].arn}"
+              "${aws_cloudfront_distribution.storage_bucket.arn}"
             ]
           }
         }
-
-
       }
     ]
   })
 }
 
-# Creates Folder for Songs
-resource "aws_s3_object" "song_folder" {
-  for_each = aws_s3_bucket.storage_bucket
-  bucket   = each.value.bucket
-  key      = "songs/"
+resource "aws_s3_bucket_logging" "storage_bucket_logging" {
+  for_each      = aws_s3_bucket.storage_bucket
+  bucket        = each.value.bucket
+  target_bucket = var.log_bucket
+  target_prefix = "${element(split("_", each.key), 3)}_storage_bucket_server_access"
+  target_object_key_format {
+    partitioned_prefix {
+      partition_date_source = "EventTime"
+    }
+  }
+}
+
+# Creates Folder Structure
+resource "aws_s3_object" "prod_folder_structure" {
+  bucket = aws_s3_bucket.storage_bucket["prod"].bucket
+  key    = "songs/"
+}
+
+resource "aws_s3_object" "dev_folder_structure" {
+  bucket = aws_s3_bucket.storage_bucket["dev"].bucket
+  key    = "dev/songs/"
 }
 
 
@@ -92,43 +106,58 @@ resource "aws_s3_object" "song_folder" {
 # For serving audio and image files from storage bucket
 #######################################################
 
-resource "aws_cloudfront_origin_access_identity" "storage_bucket_origin_access_identity" {
-  for_each = aws_s3_bucket.storage_bucket
-  comment  = "Allows CloudFront access to ${each.key} bucket"
+resource "aws_cloudfront_origin_access_control" "storage_bucket" {
+  for_each                          = aws_s3_bucket.storage_bucket
+  name                              = "storage_bucket_oac_${each.key}"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
 }
 
-resource "aws_cloudfront_distribution" "storage_bucket_distribution" {
-  for_each   = aws_s3_bucket.storage_bucket
-  depends_on = [aws_cloudfront_origin_access_identity.storage_bucket_origin_access_identity]
-
-  comment         = "Serves audio and image files from ${var.name_prefix} ${each.key} storage"
+resource "aws_cloudfront_distribution" "storage_bucket" {
+  comment         = "Serves audio and image files from storage buckets"
   price_class     = "PriceClass_All"
   http_version    = "http2and3"
   enabled         = true
   is_ipv6_enabled = true
   origin {
-    domain_name = each.value.bucket_regional_domain_name
-    origin_id   = each.key
-
-    s3_origin_config {
-      origin_access_identity = aws_cloudfront_origin_access_identity.storage_bucket_origin_access_identity[each.key].cloudfront_access_identity_path
-    }
+    domain_name              = aws_s3_bucket.storage_bucket["dev"].bucket_regional_domain_name
+    origin_id                = "dev"
+    origin_access_control_id = aws_cloudfront_origin_access_control.storage_bucket["dev"].id
+    origin_path              = ""
+  }
+  origin {
+    domain_name              = aws_s3_bucket.storage_bucket["prod"].bucket_regional_domain_name
+    origin_id                = "prod"
+    origin_access_control_id = aws_cloudfront_origin_access_control.storage_bucket["prod"].id
+    origin_path              = ""
   }
   default_cache_behavior {
     viewer_protocol_policy     = "redirect-to-https"
     allowed_methods            = ["GET", "HEAD", "OPTIONS"]
     cached_methods             = ["GET", "HEAD", "OPTIONS"]
-    target_origin_id           = each.key
+    target_origin_id           = "prod"
     cache_policy_id            = var.cache_policy_id
     origin_request_policy_id   = var.origin_request_policy_id
     response_headers_policy_id = var.response_headers_policy_id
     compress                   = true
   }
-  # logging_config {
-  #   bucket = var.log_bucket
-  #   include_cookies = false
-  #   prefix = "storage_bucket_logs"
-  # }
+  ordered_cache_behavior {
+    path_pattern               = "/dev/*"
+    target_origin_id           = "dev"
+    viewer_protocol_policy     = "redirect-to-https"
+    allowed_methods            = ["GET", "HEAD", "OPTIONS"]
+    cached_methods             = ["GET", "HEAD", "OPTIONS"]
+    cache_policy_id            = var.cache_policy_id
+    origin_request_policy_id   = var.origin_request_policy_id
+    response_headers_policy_id = var.response_headers_policy_id
+    compress                   = true
+  }
+  logging_config {
+    bucket          = var.log_bucket_endpoint
+    include_cookies = false
+    prefix          = "cloudfront-files"
+  }
 
   restrictions {
     geo_restriction {
@@ -142,8 +171,7 @@ resource "aws_cloudfront_distribution" "storage_bucket_distribution" {
   }
 
   tags = {
-    project     = var.name_prefix
-    use         = "bucket_objects"
-    environment = "${each.key}"
+    project = var.name_prefix
+    use     = "bucket_objects"
   }
 }

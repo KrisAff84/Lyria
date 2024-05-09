@@ -11,6 +11,21 @@ variable "name_prefix" {
 }
 
 #######################################################
+# Logging Bucket
+#######################################################
+
+variable "log_bucket" {
+  description = "The bucket to store logs"
+  type        = string
+  default     = "lyria-logs-2024"
+}
+
+variable "log_bucket_endpoint" {
+  description = "Endpoint for the logging bucket"
+  default     = "lyria-logs-2024.s3.amazonaws.com"
+}
+
+#######################################################
 # CloudFront Distribution
 #######################################################
 

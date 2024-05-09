@@ -8,6 +8,6 @@ __pycache__/
 *.tfstate
 *.tfstate.backup
 *.tfvars
-logBucket/
 db.sqlite3
 staticfiles/
+access_key.txt

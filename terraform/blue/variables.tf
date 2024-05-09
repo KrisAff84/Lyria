@@ -14,6 +14,10 @@ variable "secret_key" {
   sensitive   = true
 }
 
+variable "aws_profile" {
+  description = "AWS Profile"
+  default     = "kris84"
+}
 
 ####################################################
 #####    Network
@@ -21,12 +25,12 @@ variable "secret_key" {
 
 variable "aws_region" {
   description = "AWS Region"
-  default     = "us-east-2"
+  default     = "us-east-1"
 }
 
 variable "vpc_cidr" {
   description = "CIDR block for VPC"
-  default     = "10.2.0.0/16"
+  default     = "10.1.0.0/16"
 }
 
 variable "name_prefix" {
@@ -44,8 +48,8 @@ variable "instance_type" {
 }
 
 variable "ami_main" {
-  description = "lyria_v7"
-  default     = "ami-061c4969ee8ab2d85"
+  description = "lyria_v1"
+  default     = "ami-0ba5a9d95e99588e7"
 }
 
 variable "ami_bastion" {
@@ -55,7 +59,7 @@ variable "ami_bastion" {
 
 variable "key_name" {
   description = "SSH key name"
-  default     = "lyria"
+  default     = "lyria_2024"
 }
 
 variable "my_ip" {
@@ -64,31 +68,36 @@ variable "my_ip" {
 }
 
 ####################################################
-#### Storage Bucket
+#### Buckets
 ####################################################
 
 variable "bucket_arn" {
-  description = "ARN of the S3 bucket"
-  default     = "arn:aws:s3:::lyria-storage"
+  description = "ARN of the S3 Storage bucket"
+  default     = "arn:aws:s3:::lyria-storage-2024-prod"
+}
+
+variable "logging_bucket_name" {
+  description = "Name of the logging bucket"
+  default     = "lyria-logs-2024"
+}
+
+variable "logging_bucket_endpoint" {
+  description = "Endpoint for the logging bucket"
+  default     = "lyria-logs-2024.s3.amazonaws.com"
 }
 
 ####################################################
 #### Certificate
 ####################################################
 
-variable "elb_certificate_arn" {
-  description = "ARN of the ACM certificate for the ELB"
-  default     = "arn:aws:acm:us-east-2:835656321421:certificate/7aee737d-0e1f-4311-b1ff-c3b596d85168"
-}
-
 variable "ssl_policy" {
   description = "SSL policy for the load balancer"
   default     = "ELBSecurityPolicy-TLS-1-2-Ext-2018-06"
 }
 
-variable "cf_certificate_arn" {
+variable "certificate_arn" {
   description = "ARN of the ACM certificate for CloudFront"
-  default     = "arn:aws:acm:us-east-1:835656321421:certificate/150d0e5f-766e-4c68-9b25-944d8fb364fc"
+  default     = "arn:aws:acm:us-east-1:637423562225:certificate/2c63d249-2e6e-49fb-99ae-b434603081f0"
 }
 
 variable "domain_aliases" {
