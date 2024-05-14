@@ -259,21 +259,21 @@ resource "aws_lb_listener" "http" {
   port              = 80
   protocol          = "HTTP"
   default_action {
-    type = "redirect"
-    redirect {
-      protocol    = "HTTPS"
-      port        = "443"
-      status_code = "HTTP_301"
-    }
-  }
-}
-resource "aws_lb_listener" "https" {
-  load_balancer_arn = aws_lb.elb.arn
-  port              = 443
-  protocol          = "HTTPS"
-  ssl_policy        = var.ssl_policy
-  certificate_arn   = var.certificate_arn
-  default_action {
+#     type = "redirect"
+#     redirect {
+#       protocol    = "HTTPS"
+#       port        = "443"
+#       status_code = "HTTP_301"
+#     }
+#   }
+# }
+# resource "aws_lb_listener" "https" {
+#   load_balancer_arn = aws_lb.elb.arn
+#   port              = 443
+#   protocol          = "HTTPS"
+#   ssl_policy        = var.ssl_policy
+#   certificate_arn   = var.certificate_arn
+#   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.lb_tg.arn
   }
@@ -292,15 +292,15 @@ resource "aws_lb_listener" "https" {
 #   vpc_security_group_ids = [
 #     aws_security_group.bastion_sg.id
 #   ]
-#   subnet_id = aws_subnet.public1.id
+#   subnet_id = aws_subnet.public.id
 #   tags = {
 #     Name = "${var.name_prefix}-bastion"
 #   }
 # }
 
 # output "bastion_ip" {
-#   description = "Public IP of the bastion host"
-#   value       = aws_instance.bastion.public_ip
+#   description = "IPv6 Address of the bastion host"
+#   value       = aws_instance.bastion.ipv6_addresses
 # }
 
 # output "bastion_instance_id" {
@@ -324,13 +324,6 @@ resource "aws_security_group" "asg_elb_access_sg" {
     description     = "Allow HTTP from Load Balancer"
     from_port       = 80
     to_port         = 80
-    protocol        = "tcp"
-    security_groups = [aws_security_group.elb_sg.id]
-  }
-  ingress {
-    description     = "Allow HTTPS from Load Balancer"
-    from_port       = 443
-    to_port         = 443
     protocol        = "tcp"
     security_groups = [aws_security_group.elb_sg.id]
   }
@@ -365,11 +358,12 @@ resource "aws_security_group" "bastion_sg" {
   description = "Allow SSH access from My IP"
   vpc_id      = aws_vpc.main.id
   ingress {
-    description = "Allow SSH from my IP"
-    from_port   = "22"
-    to_port     = "22"
-    protocol    = "tcp"
-    cidr_blocks = [var.my_ip]
+    description      = "Allow SSH from my IP"
+    from_port        = "22"
+    to_port          = "22"
+    protocol         = "tcp"
+    ipv6_cidr_blocks = [var.my_ipv6]
+    cidr_blocks      = [var.my_ip]
   }
   egress {
     from_port   = 0
@@ -462,6 +456,7 @@ resource "aws_iam_instance_profile" "asg_bucket_profile" {
 resource "aws_apigatewayv2_api" "lyria" {
   name          = "${var.name_prefix}-api"
   protocol_type = "HTTP"
+
 }
 
 resource "aws_apigatewayv2_vpc_link" "lyria" {
@@ -476,14 +471,14 @@ resource "aws_apigatewayv2_vpc_link" "lyria" {
 
 resource "aws_apigatewayv2_route" "lyria" {
   api_id    = aws_apigatewayv2_api.lyria.id
-  route_key = "GET /{proxy+}"
+  route_key = "ANY /{proxy+}"
   target    = "integrations/${aws_apigatewayv2_integration.lyria.id}"
 }
 
 resource "aws_apigatewayv2_integration" "lyria" {
   api_id             = aws_apigatewayv2_api.lyria.id
   integration_type   = "HTTP_PROXY"
-  integration_method = "GET"
+  integration_method = "ANY"
   integration_uri    = aws_lb_listener.http.arn
   connection_type    = "VPC_LINK"
   connection_id      = aws_apigatewayv2_vpc_link.lyria.id
@@ -493,6 +488,35 @@ resource "aws_apigatewayv2_stage" "lyria" {
   api_id      = aws_apigatewayv2_api.lyria.id
   name        = "$default"
   auto_deploy = true
+
+  # access_log_settings {
+  #   destination_arn = "arn:aws:logs:us-east-1:637423562225:log-group:lyria_blue_api_log_group"
+  #   format = jsonencode(
+  #     {
+  #       requestId               = "$context.requestId"
+  #       ip                      = "$context.identity.sourceIp"
+  #       caller                  = "$context.identity.caller"
+  #       user                    = "$context.identity.user"
+  #       requestTime             = "$context.requestTime"
+  #       httpMethod              = "$context.httpMethod"
+  #       resourcePath            = "$context.resourcePath"
+  #       status                  = "$context.status"
+  #       protocol                = "$context.protocol"
+  #       responseLength          = "$context.responseLength"
+  #       integrationStatus       = "$context.integrationStatus"
+  #       integrationLatency      = "$context.integrationLatency"
+  #       errorMessage            = "$context.error.message"
+  #       integrationErrorMessage = "$context.integration.error"
+  #     }
+  #   )
+  # }
+
+  default_route_settings {
+    # detailed_metrics_enabled = true
+    # logging_level            = "INFO"
+    throttling_burst_limit   = 5000
+    throttling_rate_limit    = 10000
+  }
 }
 
 #######################################################

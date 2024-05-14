@@ -54,7 +54,7 @@ variable "ami_main" {
 
 variable "ami_bastion" {
   description = "AMI to be used for bastion host"
-  default     = "ami-0e83be366243f524a"
+  default     = "ami-04b70fa74e45c3917"
 }
 
 variable "key_name" {
@@ -65,6 +65,12 @@ variable "key_name" {
 variable "my_ip" {
   description = "Your IP address"
   default     = "24.162.52.74/32"
+}
+
+variable "my_ipv6" {
+  description = "Your IPv6 address"
+  default     = "2603:8080:d701:55:1055:c522:685d:449e/128"
+
 }
 
 ####################################################
@@ -97,7 +103,7 @@ variable "ssl_policy" {
 
 variable "certificate_arn" {
   description = "ARN of the ACM certificate for CloudFront"
-  default     = "arn:aws:acm:us-east-1:637423562225:certificate/2c63d249-2e6e-49fb-99ae-b434603081f0"
+  default     = "arn:aws:acm:us-east-1:637423562225:certificate/03361d5b-5364-4894-b08c-7d616666f112"
 }
 
 variable "domain_aliases" {
