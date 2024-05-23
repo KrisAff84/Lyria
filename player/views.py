@@ -1,6 +1,7 @@
 """Contains the views for the player app."""
 from django.shortcuts import render
 from django.conf import settings
+from django.http import HttpResponse
 import boto3
 
 
@@ -68,3 +69,7 @@ def index(request):
     }
 
     return render(request, 'index.html', context)
+
+def health_check(request):
+    """Returns a 200 status code to indicate the server is running."""
+    return HttpResponse("OK", status=200)
