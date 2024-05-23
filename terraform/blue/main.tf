@@ -259,21 +259,21 @@ resource "aws_lb_listener" "http" {
   port              = 80
   protocol          = "HTTP"
   default_action {
-#     type = "redirect"
-#     redirect {
-#       protocol    = "HTTPS"
-#       port        = "443"
-#       status_code = "HTTP_301"
-#     }
-#   }
-# }
-# resource "aws_lb_listener" "https" {
-#   load_balancer_arn = aws_lb.elb.arn
-#   port              = 443
-#   protocol          = "HTTPS"
-#   ssl_policy        = var.ssl_policy
-#   certificate_arn   = var.certificate_arn
-#   default_action {
+    #     type = "redirect"
+    #     redirect {
+    #       protocol    = "HTTPS"
+    #       port        = "443"
+    #       status_code = "HTTP_301"
+    #     }
+    #   }
+    # }
+    # resource "aws_lb_listener" "https" {
+    #   load_balancer_arn = aws_lb.elb.arn
+    #   port              = 443
+    #   protocol          = "HTTPS"
+    #   ssl_policy        = var.ssl_policy
+    #   certificate_arn   = var.certificate_arn
+    #   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.lb_tg.arn
   }
@@ -514,8 +514,8 @@ resource "aws_apigatewayv2_stage" "lyria" {
   default_route_settings {
     # detailed_metrics_enabled = true
     # logging_level            = "INFO"
-    throttling_burst_limit   = 5000
-    throttling_rate_limit    = 10000
+    throttling_burst_limit = 5000
+    throttling_rate_limit  = 10000
   }
 }
 
