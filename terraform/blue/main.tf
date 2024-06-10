@@ -562,6 +562,11 @@ resource "aws_cloudfront_distribution" "api" {
       origin_protocol_policy = "https-only"
       origin_ssl_protocols   = ["TLSv1.2"]
     }
+
+    origin_shield {
+      enabled              = true
+      origin_shield_region = "us-east-1"
+    }
     custom_header {
       name  = "X-Custom-Header"
       value = var.x-custom-header
