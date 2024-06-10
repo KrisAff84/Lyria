@@ -93,6 +93,15 @@ variable "logging_bucket_endpoint" {
 }
 
 ####################################################
+#### API Gateway
+####################################################
+
+variable "lambda_authorizer_arn" {
+  description = "ARN of the Lambda authorizer"
+  default     = "arn:aws:lambda:us-east-1:637423562225:function:lyria-authorizer"
+}
+
+####################################################
 #### Certificate
 ####################################################
 
@@ -105,6 +114,10 @@ variable "certificate_arn" {
   description = "ARN of the ACM certificate for CloudFront"
   default     = "arn:aws:acm:us-east-1:637423562225:certificate/03361d5b-5364-4894-b08c-7d616666f112"
 }
+
+####################################################
+#### CloudFront
+####################################################
 
 variable "domain_aliases" {
   type        = list(string)
@@ -125,4 +138,9 @@ variable "cache_policy_id" {
 variable "origin_request_policy_id" {
   description = "ID of the origin request policy for CloudFront"
   default     = "b689b0a8-53d0-40ab-baf2-68738e2966ac" # AllViewerExceptHostHeader
+}
+
+variable "x-custom-header" {
+  description = "Custom header for the CloudFront distribution"
+  default     = "di*{4924tRXcO(%"
 }

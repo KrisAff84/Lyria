@@ -176,7 +176,7 @@ resource "aws_autoscaling_group" "asg" {
     id      = aws_launch_template.asg_lt.id
     version = aws_launch_template.asg_lt.latest_version
   }
-  max_size          = 3
+  max_size          = 1
   min_size          = 1
   health_check_type = "ELB"
   desired_capacity  = 1
@@ -211,7 +211,7 @@ resource "aws_autoscaling_policy" "main" {
     predefined_metric_specification {
       predefined_metric_type = "ASGAverageCPUUtilization"
     }
-    target_value = 50.0
+    target_value = 80.0
   }
 }
 
@@ -470,9 +470,11 @@ resource "aws_apigatewayv2_vpc_link" "lyria" {
 }
 
 resource "aws_apigatewayv2_route" "lyria" {
-  api_id    = aws_apigatewayv2_api.lyria.id
-  route_key = "ANY /{proxy+}"
-  target    = "integrations/${aws_apigatewayv2_integration.lyria.id}"
+  api_id             = aws_apigatewayv2_api.lyria.id
+  route_key          = "ANY /{proxy+}"
+  target             = "integrations/${aws_apigatewayv2_integration.lyria.id}"
+  authorization_type = "CUSTOM"
+  authorizer_id      = "76ddhu"
 }
 
 resource "aws_apigatewayv2_integration" "lyria" {
@@ -492,22 +494,26 @@ resource "aws_apigatewayv2_stage" "lyria" {
   # access_log_settings {
   #   destination_arn = "arn:aws:logs:us-east-1:637423562225:log-group:lyria_blue_api_log_group"
   #   format = jsonencode(
-  #     {
-  #       requestId               = "$context.requestId"
-  #       ip                      = "$context.identity.sourceIp"
-  #       caller                  = "$context.identity.caller"
-  #       user                    = "$context.identity.user"
-  #       requestTime             = "$context.requestTime"
-  #       httpMethod              = "$context.httpMethod"
-  #       resourcePath            = "$context.resourcePath"
-  #       status                  = "$context.status"
-  #       protocol                = "$context.protocol"
-  #       responseLength          = "$context.responseLength"
-  #       integrationStatus       = "$context.integrationStatus"
-  #       integrationLatency      = "$context.integrationLatency"
-  #       errorMessage            = "$context.error.message"
-  #       integrationErrorMessage = "$context.integration.error"
-  #     }
+  # {
+  #   requestId               = "$context.requestId"
+  #   ip                      = "$context.identity.sourceIp"
+  #   caller                  = "$context.identity.caller"
+  #   user                    = "$context.identity.user"
+  #   requestTime             = "$context.requestTime"
+  #   requestHeaders          = "$context.requestHeaders"
+  #   requestBody             = "$context.requestBody"
+  #   httpMethod              = "$context.httpMethod"
+  #   resourcePath            = "$context.resourcePath"
+  #   status                  = "$context.status"
+  #   protocol                = "$context.protocol"
+  #   responseLength          = "$context.responseLength"
+  #   responseHeaders         = "$context.responseHeaders"
+  #   responseBody            = "$context.responseBody"
+  #   integrationStatus       = "$context.integrationStatus"
+  #   integrationLatency      = "$context.integrationLatency"
+  #   errorMessage            = "$context.error.message"
+  #   integrationErrorMessage = "$context.integration.error"
+  # }
   #   )
   # }
 
@@ -518,6 +524,19 @@ resource "aws_apigatewayv2_stage" "lyria" {
     throttling_rate_limit  = 10000
   }
 }
+
+# resource "aws_apigatewayv2_authorizer" "lambda" {
+#   api_id          = aws_apigatewayv2_api.lyria.id
+#   authorizer_type = "REQUEST"
+#   identity_sources = [
+#     "$request.header.X-Custom-Header"
+#   ]
+#   name                              = "lyria-authorizer"
+#   authorizer_uri                    = var.lambda_authorizer_arn
+#   authorizer_payload_format_version = "2.0"
+#   enable_simple_responses           = true
+#   authorizer_result_ttl_in_seconds  = 900
+# }
 
 #######################################################
 # CloudFront Distribution
@@ -542,6 +561,10 @@ resource "aws_cloudfront_distribution" "api" {
       https_port             = 443
       origin_protocol_policy = "https-only"
       origin_ssl_protocols   = ["TLSv1.2"]
+    }
+    custom_header {
+      name  = "X-Custom-Header"
+      value = var.x-custom-header
     }
   }
   default_cache_behavior {
