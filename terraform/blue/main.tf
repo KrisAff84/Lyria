@@ -249,8 +249,8 @@ resource "aws_lb_target_group" "lb_tg" {
     healthy_threshold   = 5
     unhealthy_threshold = 5
     timeout             = 5
-    interval            = 100
-    path                = "/health"
+    interval            = 120
+    path                = "/health/"
     port                = "traffic-port"
   }
 }
