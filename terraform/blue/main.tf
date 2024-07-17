@@ -163,6 +163,12 @@ resource "aws_launch_template" "asg_lt" {
   iam_instance_profile {
     arn = aws_iam_instance_profile.asg_bucket_profile.arn
   }
+  metadata_options {
+    http_tokens                 = "required"
+    http_put_response_hop_limit = 3
+    http_endpoint               = "enabled"
+    instance_metadata_tags      = "enabled"
+  }
 
 }
 
