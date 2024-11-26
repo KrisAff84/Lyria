@@ -11,3 +11,4 @@ __pycache__/
 db.sqlite3
 staticfiles/
 access_key.txt
+.server_env
