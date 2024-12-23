@@ -1,6 +1,8 @@
 The Terraform configurations for the Lyria infrastructure is organized into 3 folders for blue/green deployments. Once a configuration has been changed, the DNS routing needs to be changed in the "dns_records" folder.
 
-**Current Version:** Green
+**Current Version:** Blue
+
+TODO: Rest of Documentation needs to be updated
 
 ## Green Infrastructure 
 - Custom VPC

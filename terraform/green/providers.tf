@@ -11,6 +11,6 @@ terraform {
     dynamodb_table = "lyria-state-locks"
     key            = "green/terraform.tfstate"
     region         = "us-east-2"
-    profile        = "admin-profile"
+    profile        = "kris84"
   }
 }
