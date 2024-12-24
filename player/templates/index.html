@@ -7,6 +7,10 @@
     <link rel="icon" href="data:;base64,iVBORw0KGgo=">
     <title>Meet The Afflerbaughs</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         :root {
             --color1: #e8eef2;
             --color2: #d6c9c9;
@@ -23,8 +27,10 @@
         }
 
         #player-container {
-            /* max-width: 500px; */
-            margin: 10% auto;
+            max-width: 550px;
+            margin-right: auto;
+            margin-left: auto;
+            margin-top: 10%;
             border: 6px solid;
             border-color: var(--color2);
             background-color: var(--color5);
@@ -48,11 +54,11 @@
             color: var(--color1);
             text-decoration: underline;
         }
-            
+
         #audio-player {
             width: 90%;
             margin-bottom: 20px;
-            margin-top: 10px; 
+            margin-top: 10px;
         }
 
         .controls {
@@ -112,7 +118,7 @@
         #song-list {
             padding: 5px;
             cursor: pointer;
-            color: var(--color1);  
+            color: var(--color1);
         }
 
         #song-list li {
@@ -137,21 +143,23 @@
             }
         }
 
-        @media (min-width: 441px) {
-            #player-container {
-                max-width: 500px;
-                margin: 10% auto;
-            }
-        }
         /***** Mobile Formatting ******/
 
         @media (max-width: 440px) {
             #player-container {
-                width: 100%;
-                margin: 0;  
+                border-width: 4px;
+                min-width: 100%;
+                margin-top: 0;
+                margin-right: 0;
+                margin-left: 0;
+                margin-bottom: 0;
             }
         }
-        
+        @media (max-width: 390px) {
+            #song-list {
+            font-size: .8em;
+            }
+        }
 
     </style>
 </head>
@@ -187,43 +195,43 @@
         <div id="list-container">
             <div id="song-list">
                 <ul>
-                    
+
                 </ul>
             </div>
         </div>
     </div>
-    
+
 
     <script>
         let songIdx = 0;
         const audioPlayer = document.getElementById("audio-player");
         const playPauseButton = document.getElementById("play-pause");
-    
+
         const songTitleString = "{{ song_list|safe }}".replaceAll(/[\[\]\']/g, '');
         const songTitlesTrimmed = songTitleString.replaceAll(/[*]/g, "'");
         const songTitles = songTitlesTrimmed.split(',');
-    
+
         const songUrlString = "{{ audio_urls|safe }}".replaceAll(/[\[\]\']/g, '');
         const songUrls = songUrlString.split(',');
-    
+
         const ImageUrlString = "{{ image_urls|safe }}".replaceAll(/[\[\]\']/g, '');
         const ImageUrls = ImageUrlString.split(',');
-    
+
         function loadAudioForFirstSong() {
             const audio = new Audio();
             audio.src = songUrls[0];
             audio.preload = "auto";
-    
+
             // Handle the canplaythrough event to ensure the audio is fully buffered
             audio.addEventListener("canplaythrough", function onCanPlayThrough() {
                 audioPlayer.src = audio.src;
                 audioPlayer.removeEventListener("canplaythrough", onCanPlayThrough);  // Remove the event listener after loading the first song
             });
-    
+
             // Load the audio for the first song
             audio.load();
         }
-    
+
         function updateAudioPlayer(newIdx) {
             document.getElementById("dynamic-title").innerText = songTitles[newIdx];
             document.getElementById("song-image").src = ImageUrls[newIdx];
@@ -237,24 +245,24 @@
                 playPauseButton.innerHTML = `<ion-icon name="pause-circle"></ion-icon>`;
                 audioPlayer.removeEventListener("canplay", onCanPlay);  // Remove the event listener after the first playback
             });
-            
+
             checkPlayPauseState();
             songIdx = newIdx;
             }
-            
+
             // Load audio for the first song when the page loads
             loadAudioForFirstSong();
-            
+
         document.addEventListener("DOMContentLoaded", function () {
             const skipBackwardButton = document.getElementById("skip-backward");
             const skipForwardButton = document.getElementById("skip-forward");
-    
+
             songIdx = 0;
-    
+
             // Set initial title
             document.getElementById("dynamic-title").innerText = songTitles[songIdx];
-    
-    
+
+
             playPauseButton.addEventListener("click", function () {
                 playAudio()
                     .then(() => {
@@ -273,19 +281,19 @@
                         checkPlayPauseState();
                     });
             });
-                
+
             skipBackwardButton.addEventListener("click", function () {
                 const newIdx = (songIdx - 1 + songTitles.length) % songTitles.length;
                 songIdx = newIdx;
                 updateAudioPlayer(newIdx);
             });
-    
+
             skipForwardButton.addEventListener("click", function () {
                 const newIdx = (songIdx + 1) % songTitles.length;
                 songIdx = newIdx;
                 updateAudioPlayer(newIdx);
             });
-    
+
             // Handle the ended event to move to the next song
             audioPlayer.addEventListener("ended", function () {
                 const newIdx = (songIdx + 1) % songTitles.length;
@@ -301,7 +309,7 @@
                 checkPlayPauseState();
             });
         });
-    
+
         // Dynamically create the song list
         for (let i = 0; i < songTitles.length; i++) {
             let listItem = document.createElement("li");
@@ -309,7 +317,7 @@
             listItem.onclick = function () {
                 updateAudioPlayer(i);
             };
-    
+
             document.getElementById("song-list").getElementsByTagName("ul")[0].appendChild(listItem);
         }
 
@@ -332,7 +340,7 @@
             });
         }
     </script>
-    
+
 
 <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
 
