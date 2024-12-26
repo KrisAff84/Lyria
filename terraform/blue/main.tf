@@ -110,7 +110,7 @@ resource "aws_route_table_association" "public" {
 
 ############ Network Connections ############
 
-########## VPC Endpoint ########## 
+########## VPC Endpoint ##########
 ## For application access to S3 ##
 
 resource "aws_vpc_endpoint" "bucket_endpoint" {
@@ -168,6 +168,20 @@ resource "aws_launch_template" "asg_lt" {
     http_put_response_hop_limit = 3
     http_endpoint               = "enabled"
     instance_metadata_tags      = "enabled"
+  }
+}
+
+resource "terraform_data" "invalidate_cache" {
+  triggers_replace = [
+    aws_launch_template.asg_lt.image_id
+  ]
+  provisioner "local-exec" {
+    command = "python invalidate_cache.py"
+    working_dir = "../../hooks"
+    environment = {
+      IMAGE_ID = var.ami_main
+      DISTRIBUTION = aws_cloudfront_distribution.api.id
+    }
   }
 
 }
@@ -287,7 +301,7 @@ resource "aws_lb_listener" "http" {
 
 ###########################################
 # Bastion Host
-# Everything in this block can be commented out 
+# Everything in this block can be commented out
 # if a bastion host is unneeded
 ###########################################
 
@@ -407,7 +421,7 @@ resource "aws_security_group_rule" "outbound" {
 }
 
 #############################################
-# Instance Profile - Allows Instances 
+# Instance Profile - Allows Instances
 # Read/Write Access to S3 Bucket
 #############################################
 
