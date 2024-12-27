@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 from decouple import config
 
-SONG_ORDER = config("SONG_ORDER", cast=lambda v: [int(i) for i in v.split(",")])
+# SONG_ORDER = config("SONG_ORDER", cast=lambda v: [int(i) for i in v.split(",")])
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

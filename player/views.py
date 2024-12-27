@@ -1,5 +1,4 @@
 """Contains the views for the player app."""
-import json
 from django.shortcuts import render
 from django.conf import settings
 from django.http import HttpResponse
@@ -13,6 +12,7 @@ dynamo_db_table_name = settings.DYNAMO_DB_TABLE_NAME
 debug = True if bucket_name == 'lyria-storage-2024-dev' else False
 s3_prefix = 'dev/songs/' if debug else 'songs/'
 split_index = 2 if debug else 1
+
 
 
 def index(request):
@@ -41,8 +41,6 @@ def index(request):
     idx = 1
 
     response = s3.list_objects_v2(Bucket=bucket_name, Prefix=s3_prefix)
-    print(f's3_prefix: {s3_prefix}')
-    print(json.dumps(response, indent=4, default=str))
 
     # Gets list of song keys without folder name
     while idx < len(response['Contents']):
@@ -56,9 +54,6 @@ def index(request):
         image_urls.append(f"https://{cloudfront_url}/{response['Contents'][idx]['Key']}")
         idx += 1
 
-    print(json.dumps(title_keys, indent=4, default=str))
-    print(json.dumps(audio_urls, indent=4, default=str))
-    print(json.dumps(image_urls, indent=4, default=str))
     # Replaces underscores with spaces in title_keys list
     song_list = [song.replace('_', ' ') for song in title_keys]
 
@@ -75,7 +70,6 @@ def index(request):
     current_audio_url = audio_urls[current_idx]
     current_image_url = image_urls[current_idx]
 
-
     context = {
         'song_list': song_list,
         'audio_urls': audio_urls,
@@ -86,7 +80,6 @@ def index(request):
         'current_idx': current_idx,
     }
 
-    print(json.dumps(context, indent=4, default=str))
     return render(request, 'index.html', context)
 
 def health_check(request):
