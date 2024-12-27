@@ -22,6 +22,7 @@ env:
   SONG_ORDER: '1,2,3,0,4,6,5'
   SECRET_KEY: ${{secrets.SECRET_KEY}}
   STAGING_INSTANCE_ID: 'i-057ba06636c67355f'
+  DYNAMO_DB_TABLE_NAME: ${{secrets.DYNAMO_DB_TABLE_NAME}}
 
 permissions:
   contents: read
