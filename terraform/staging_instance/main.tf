@@ -29,6 +29,10 @@ data "aws_s3_bucket" "storage_prod" {
   bucket = "${var.name_prefix}-storage-2024-prod"
 }
 
+data "aws_dynamodb_table" "lyria_song_order" {
+  name = "${var.name_prefix}_song_order"
+}
+
 ##################################################
 # Instance Profile - allows dev bucket access
 ##################################################
@@ -52,6 +56,12 @@ resource "aws_iam_role_policy" "staging_policy" {
           "${data.aws_s3_bucket.storage_prod.arn}",
           "${data.aws_s3_bucket.storage_prod.arn}/*"
         ]
+      },
+      {
+        "Sid" : "ScanTable",
+        "Effect" : "Allow",
+        "Action" : "dynamodb:Scan",
+        "Resource" : "${data.aws_dynamodb_table.lyria_song_order.arn}"
       }
     ]
   })
