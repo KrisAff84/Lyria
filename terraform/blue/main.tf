@@ -111,8 +111,8 @@ resource "aws_route_table_association" "public" {
 ############ Network Connections ############
 
 ########## VPC Endpoint ##########
-## For application access to S3 ##
 
+## For application access to S3 ##
 resource "aws_vpc_endpoint" "bucket_endpoint" {
   service_name = "com.amazonaws.${var.aws_region}.s3"
   vpc_id       = aws_vpc.main.id
@@ -121,6 +121,18 @@ resource "aws_vpc_endpoint" "bucket_endpoint" {
   ]
   tags = {
     Name = "${var.name_prefix}-bucket-endpoint"
+  }
+}
+
+## For application access to DynamoDB ##
+resource "aws_vpc_endpoint" "dynamodb_endpoint" {
+  service_name = "com.amazonaws.${var.aws_region}.dynamodb"
+  vpc_id       = aws_vpc.main.id
+  route_table_ids = [
+    aws_route_table.private.id
+  ]
+  tags = {
+    Name = "${var.name_prefix}-dynamodb-endpoint"
   }
 }
 
@@ -441,7 +453,16 @@ resource "aws_iam_role_policy" "policy" {
           var.bucket_arn,
           "${var.bucket_arn}/*"
         ]
+      },
+      {
+        "Sid" : "ScanTable",
+        "Effect" : "Allow",
+        "Action" : [
+          "dynamodb:Scan"
+        ],
+        "Resource" : "arn:aws:dynamodb:us-east-1:637423562225:table/lyria_song_order"
       }
+
     ]
   })
   role = aws_iam_role.asg_bucket_role.name

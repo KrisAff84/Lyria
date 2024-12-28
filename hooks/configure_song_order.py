@@ -4,6 +4,7 @@ Script will prompt for the song order. Separate indexes by comma and press enter
 '''
 
 import boto3
+from invalidate_cache import invalidate_cloudfront_cache
 
 session = boto3.Session(profile_name='kris84')
 
@@ -39,6 +40,9 @@ if proceed == 'y':
         }
     )
     print("Song order updated.")
+
+    invalidate_cloudfront_cache('E3RDP7Z44PB9L6')
+
 
 else:
     print("Song order not updated. Exiting...")

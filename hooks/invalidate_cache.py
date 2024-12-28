@@ -2,10 +2,10 @@ import os
 from datetime import datetime
 import boto3
 
+
 session = boto3.Session(profile_name='kris84')
 cloudfront = session.client('cloudfront')
 ec2 = session.client('ec2')
-
 
 
 def check_instance_status(image_id):
