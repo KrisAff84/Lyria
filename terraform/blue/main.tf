@@ -110,29 +110,17 @@ resource "aws_route_table_association" "public" {
 
 ############ Network Connections ############
 
-########## VPC Endpoint ##########
+########## VPC Endpoints ##########
 
-## For application access to S3 ##
-resource "aws_vpc_endpoint" "bucket_endpoint" {
-  service_name = "com.amazonaws.${var.aws_region}.s3"
+resource "aws_vpc_endpoint" "lyria" {
+  for_each = local.vpc_endpoint_configuration
+  service_name = each.value.service_name
   vpc_id       = aws_vpc.main.id
   route_table_ids = [
     aws_route_table.private.id
   ]
   tags = {
-    Name = "${var.name_prefix}-bucket-endpoint"
-  }
-}
-
-## For application access to DynamoDB ##
-resource "aws_vpc_endpoint" "dynamodb_endpoint" {
-  service_name = "com.amazonaws.${var.aws_region}.dynamodb"
-  vpc_id       = aws_vpc.main.id
-  route_table_ids = [
-    aws_route_table.private.id
-  ]
-  tags = {
-    Name = "${var.name_prefix}-dynamodb-endpoint"
+    Name = each.value.name_tag
   }
 }
 
