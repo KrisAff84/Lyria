@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 from decouple import config
 
-SONG_ORDER = config("SONG_ORDER", cast=lambda v: [int(i) for i in v.split(",")])
+# SONG_ORDER = config("SONG_ORDER", cast=lambda v: [int(i) for i in v.split(",")])
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -34,6 +34,7 @@ AWS_STORAGE_BUCKET_NAME = config("AWS_STORAGE_BUCKET_NAME")
 AWS_S3_REGION_NAME = config("AWS_S3_REGION_NAME")
 
 CLOUDFRONT_URL = config("CLOUDFRONT_URL")
+DYNAMO_DB_TABLE_NAME = config("DYNAMO_DB_TABLE_NAME")
 
 ALLOWED_HOSTS = [
     'lyria-elb-1347266760.us-east-2.elb.amazonaws.com',
@@ -50,7 +51,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'player',  
+    'player',
     'corsheaders',
 ]
 
