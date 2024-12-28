@@ -17,7 +17,7 @@ env:
   AWS_STORAGE_BUCKET_NAME: 'lyria-storage-2024-prod'
   AWS_REGION: 'us-east-1'
   AWS_S3_REGION_NAME: 'us-east-1'
-  CLOUDFRONT_URL: 'https://d339fsp1ckp0lm.cloudfront.net/'
+  CLOUDFRONT_URL: 'd339fsp1ckp0lm.cloudfront.net'
   DEBUG: 'False'
   SONG_ORDER: '1,2,3,0,4,6,5'
   SECRET_KEY: ${{secrets.SECRET_KEY}}
